@@ -1003,7 +1003,11 @@ public class MainActivity extends Activity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(AutoWallpaperManager.ACTION_WALLPAPER_CHANGED);
         filter.addAction(Intent.ACTION_BATTERY_CHANGED);
-        registerReceiver(eventReceiver, filter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(eventReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(eventReceiver, filter);
+        }
 
         syncLiveDriveWallpapers(false);
     }
