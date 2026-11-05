@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.custom.iconpack">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:allowBackup="true"
@@ -17,13 +16,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Nothing Launcher / Nova Launcher / ADW Launcher intents -->
+            <!-- Nothing Launcher / Nova / Lawnchair / ADW intents -->
             <intent-filter>
                 <action android:name="com.novalauncher.THEME" />
                 <category android:name="com.novalauncher.category.CUSTOM_ICON_PACK" />
             </intent-filter>
             <intent-filter>
                 <action android:name="org.adw.launcher.THEMES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.anddoes.launcher.THEME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.teslacoilsw.launcher.THEME" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
@@ -33,6 +40,9 @@
             <meta-data
                 android:name="com.anddoes.launcher.theme.category"
                 android:value="iconpack" />
+            <meta-data
+                android:name="com.novalauncher.THEME"
+                android:resource="@xml/appfilter" />
         </activity>
 
     </application>
