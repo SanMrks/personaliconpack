@@ -61,7 +61,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-"%TOOLS%\aapt2.exe" link -I "%TOOLS%\android.jar" --manifest "%ROOT%app\src\main\AndroidManifest.xml" -A "%ROOT%app\src\main\assets" -0 arsc -o "%TOOLS%\app-unsigned.apk" "%TOOLS%\compiled_res.zip" --auto-add-overlay --min-sdk-version 26 --target-sdk-version 34 --version-code 34 --version-name "5.5"
+"%TOOLS%\aapt2.exe" link -I "%TOOLS%\android.jar" --manifest "%ROOT%app\src\main\AndroidManifest.xml" -A "%ROOT%app\src\main\assets" -0 arsc -o "%TOOLS%\app-unsigned.apk" "%TOOLS%\compiled_res.zip" --auto-add-overlay --min-sdk-version 26 --target-sdk-version 34 --version-code 35 --version-name "5.6"
 if errorlevel 1 (
     echo [ERROR] Failed to link APK.
     pause

@@ -1,32 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_shuffle_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@drawable/bg_widget_glass"
-    android:padding="12dp"
-    android:gravity="center">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/widget_shuffle_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="POP"
-        android:textColor="#FFFFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:letterSpacing="0.16" />
+    <!-- Wallpaper-Adaptive Circular Liquid Glass Surface -->
+    <ImageView
+        android:id="@+id/widget_glass_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:src="@drawable/bg_widget_glass" />
 
-    <TextView
-        android:id="@+id/widget_shuffle_subtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="WALLPAPER"
-        android:textColor="#FFFF2E4D"
-        android:textSize="9sp"
-        android:textStyle="bold"
-        android:letterSpacing="0.14"
-        android:layout_marginTop="3dp" />
+    <!-- Pure Typography (Centered & Fitted) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:gravity="center">
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/widget_shuffle_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="POP"
+            android:textColor="#FFFFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.14"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/widget_shuffle_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="WALLPAPER"
+            android:textColor="#FFFF2E4D"
+            android:textSize="9sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.12"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:layout_marginTop="2dp" />
+
+    </LinearLayout>
+
+</FrameLayout>

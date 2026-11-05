@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="24dp"
+    android:viewportWidth="120"
+    android:viewportHeight="24">
+    <!-- Crimson & Silver Soundwave Bars -->
+    <path
+        android:strokeColor="#FFDC143C"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:pathData="
+        M4,12v-3v6 M10,12v-6v12 M16,12v-9v18 M22,12v-4v8 M28,12v-8v16
+        M34,12v-11v22 M40,12v-6v12 M46,12v-3v6 M52,12v-7v14 M58,12v-10v20
+        M64,12v-5v10 M70,12v-8v16 M76,12v-11v22 M82,12v-7v14 M88,12v-4v8
+        M94,12v-9v18 M100,12v-5v10 M106,12v-3v6 M112,12v-7v14 M116,12v-2v4
+        " />
+</vector>

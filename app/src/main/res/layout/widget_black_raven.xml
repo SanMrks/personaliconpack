@@ -1,114 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@drawable/bg_widget_glass"
-    android:padding="16dp"
-    android:gravity="center_vertical">
+    android:layout_height="match_parent">
 
-    <!-- Header: Title & Branding -->
+    <!-- Wallpaper-Adaptive Liquid Glass Background Surface -->
+    <ImageView
+        android:id="@+id/widget_glass_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/bg_widget_glass" />
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
         android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/widget_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="BLACK RAVEN"
-            android:textColor="#FFFF2E4D"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.08" />
-
-        <TextView
-            android:id="@+id/widget_weather"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="OBSIDIAN GLASS"
-            android:textColor="#CCFFFFFF"
-            android:textSize="11sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <!-- Center: Clock & Date -->
-    <LinearLayout
-        android:id="@+id/widget_clock_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginTop="6dp">
-
-        <TextView
-            android:id="@+id/widget_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="09:14"
-            android:textColor="#FFFFFFFF"
-            android:textSize="36sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:id="@+id/widget_date_container"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="14dp">
-
-            <TextView
-                android:id="@+id/widget_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Thursday | 5 Nov"
-                android:textColor="#E6FFFFFF"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/widget_subtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="RAVENSHADE EDITION"
-                android:textColor="#80FF5A73"
-                android:textSize="9sp"
-                android:letterSpacing="0.05"
-                android:layout_marginTop="2dp" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- Bottom: Battery Bar & Percentage -->
-    <LinearLayout
-        android:id="@+id/widget_battery_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="10dp">
-
+        <!-- Header: Title & Branding -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
             <TextView
-                android:id="@+id/widget_battery_status"
+                android:id="@+id/widget_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="BLACK RAVEN"
+                android:textColor="#FFFF2E4D"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08" />
+
+            <TextView
+                android:id="@+id/widget_weather"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OBSIDIAN GLASS"
+                android:textColor="#CCFFFFFF"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Center: Clock & Date -->
+        <LinearLayout
+            android:id="@+id/widget_clock_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="6dp">
+
+            <TextView
+                android:id="@+id/widget_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10:42"
+                android:textColor="#FFFFFFFF"
+                android:textSize="38sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium"
+                android:includeFontPadding="false" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="14dp">
+
+                <TextView
+                    android:id="@+id/widget_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thursday | 24 Oct"
+                    android:textColor="#B8B8B8"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif"
+                    android:includeFontPadding="false" />
+
+                <!-- Custom Tag Label -->
+                <TextView
+                    android:id="@+id/widget_tag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="RAVENSHADE EDITION"
+                    android:textColor="#80FF5A73"
+                    android:textSize="9sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.12"
+                    android:includeFontPadding="false"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Footer: Battery Bar & Percentage -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/widget_battery_label"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="BATTERY STATUS"
-                android:textColor="#99FFFFFF"
-                android:textSize="10sp"
+                android:textColor="#80FFFFFF"
+                android:textSize="9sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.05" />
+                android:letterSpacing="0.10" />
 
             <TextView
-                android:id="@+id/widget_battery_pct"
+                android:id="@+id/widget_battery"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="85%"
@@ -117,27 +128,26 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
+        <!-- Static Progress Bar (When not charging) -->
         <ProgressBar
-            android:id="@+id/widget_battery_bar"
+            android:id="@+id/widget_battery_progress"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
-            android:layout_marginTop="4dp"
+            android:layout_height="3.5dp"
             android:max="100"
             android:progress="85"
             android:progressDrawable="@drawable/bg_battery_progress"
-            android:background="@drawable/bg_battery_track" />
+            android:layout_marginTop="4dp" />
 
+        <!-- Live Animated Charging Flipper (Active when charging) -->
         <ViewFlipper
-            android:id="@+id/widget_battery_flipper"
+            android:id="@+id/widget_charging_anim"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_height="3.5dp"
             android:layout_marginTop="4dp"
-            android:autoStart="true"
-            android:flipInterval="200"
-            android:background="@drawable/bg_battery_track"
+            android:flipInterval="350"
+            android:autoStart="false"
             android:visibility="gone">
-
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -157,4 +167,4 @@
         </ViewFlipper>
     </LinearLayout>
 
-</LinearLayout>
+</FrameLayout>

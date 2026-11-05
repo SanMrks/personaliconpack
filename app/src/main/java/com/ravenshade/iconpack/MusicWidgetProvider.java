@@ -104,11 +104,24 @@ public class MusicWidgetProvider extends AppWidgetProvider {
         int idState = context.getResources().getIdentifier("widget_music_state", "id", pkg);
         int idArt = context.getResources().getIdentifier("widget_music_art", "id", pkg);
         int idRoot = context.getResources().getIdentifier("widget_music_root", "id", pkg);
+        int idCur = context.getResources().getIdentifier("widget_music_time_current", "id", pkg);
+        int idTot = context.getResources().getIdentifier("widget_music_time_total", "id", pkg);
+        int idBg = context.getResources().getIdentifier("widget_glass_bg", "id", pkg);
+
+        // Dynamic Wallpaper-Adaptive Liquid Glass Background
+        if (idBg != 0) {
+            try {
+                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 750, 320, 28);
+                if (glassBm != null) views.setImageViewBitmap(idBg, glassBm);
+            } catch (Throwable ignored) {}
+        }
 
         if (idTitle != 0) views.setTextViewText(idTitle, songTitle);
         if (idArtist != 0) views.setTextViewText(idArtist, songArtist);
         if (idBrand != 0) views.setTextViewText(idBrand, brand);
         if (idState != 0) views.setTextViewText(idState, isPlaying ? "NOW PLAYING" : "PAUSED");
+        if (idCur != 0) views.setTextViewText(idCur, RavenMusicManager.getCurrentTimeFormatted(context));
+        if (idTot != 0) views.setTextViewText(idTot, RavenMusicManager.getTotalTimeFormatted(context));
 
         // Icon for Play / Pause
         int icPlay = context.getResources().getIdentifier("ic_play_arrow", "drawable", pkg);

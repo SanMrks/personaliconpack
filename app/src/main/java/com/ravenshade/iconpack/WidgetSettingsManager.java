@@ -37,6 +37,15 @@ public class WidgetSettingsManager {
     public static final String KEY_ANIME_TITLE = "widget_anime_title";
     public static final String KEY_ANIME_TAG = "widget_anime_tag";
 
+    // 6. Weather Widget Keys
+    public static final String KEY_WEATHER_CITY = "widget_weather_city";
+    public static final String KEY_WEATHER_UNIT = "widget_weather_unit";
+    public static final String KEY_WEATHER_TAG = "widget_weather_tag";
+
+    // 7. Dock App Slots
+    public static final String KEY_DOCK_SLOT_PKG_PREFIX = "widget_dock_slot_pkg_";
+    public static final String KEY_DOCK_SLOT_LABEL_PREFIX = "widget_dock_slot_lbl_";
+
     // Defaults
     public static final String DEFAULT_TITLE = "RAVEN SHADE";
     public static final String DEFAULT_SUBTITLE = "OBSIDIAN LIQUID GLASS";
@@ -56,6 +65,26 @@ public class WidgetSettingsManager {
 
     public static final String DEFAULT_ANIME_TITLE = "SHADOW RAVEN";
     public static final String DEFAULT_ANIME_TAG = "ZONE ACTIVE";
+
+    public static final String DEFAULT_WEATHER_CITY = "Bengaluru";
+    public static final String DEFAULT_WEATHER_UNIT = "C";
+    public static final String DEFAULT_WEATHER_TAG = "OBSIDIAN BREEZE";
+
+    public static final String[] DEFAULT_DOCK_PKGS = {
+            "com.google.android.dialer",
+            "com.whatsapp",
+            "com.vivaldi.browser",
+            "com.convx.music",
+            "com.nothing.camera"
+    };
+
+    public static final String[] DEFAULT_DOCK_LABELS = {
+            "Phone",
+            "WhatsApp",
+            "Browser",
+            "Music",
+            "Camera"
+    };
 
     public static SharedPreferences getPrefs(Context context) {
         return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -173,6 +202,42 @@ public class WidgetSettingsManager {
         getPrefs(context).edit().putString(KEY_ANIME_TAG, val).apply();
     }
 
+    // Weather Widget
+    public static String getWeatherCity(Context context) {
+        return getPrefs(context).getString(KEY_WEATHER_CITY, DEFAULT_WEATHER_CITY);
+    }
+    public static void setWeatherCity(Context context, String val) {
+        getPrefs(context).edit().putString(KEY_WEATHER_CITY, val).apply();
+    }
+    public static String getWeatherUnit(Context context) {
+        return getPrefs(context).getString(KEY_WEATHER_UNIT, DEFAULT_WEATHER_UNIT);
+    }
+    public static void setWeatherUnit(Context context, String val) {
+        getPrefs(context).edit().putString(KEY_WEATHER_UNIT, val).apply();
+    }
+    public static String getWeatherTag(Context context) {
+        return getPrefs(context).getString(KEY_WEATHER_TAG, DEFAULT_WEATHER_TAG);
+    }
+    public static void setWeatherTag(Context context, String val) {
+        getPrefs(context).edit().putString(KEY_WEATHER_TAG, val).apply();
+    }
+
+    // Dock Slots
+    public static String getDockSlotPackage(Context context, int slot) {
+        String def = (slot >= 0 && slot < DEFAULT_DOCK_PKGS.length) ? DEFAULT_DOCK_PKGS[slot] : "";
+        return getPrefs(context).getString(KEY_DOCK_SLOT_PKG_PREFIX + slot, def);
+    }
+    public static String getDockSlotLabel(Context context, int slot) {
+        String def = (slot >= 0 && slot < DEFAULT_DOCK_LABELS.length) ? DEFAULT_DOCK_LABELS[slot] : "App";
+        return getPrefs(context).getString(KEY_DOCK_SLOT_LABEL_PREFIX + slot, def);
+    }
+    public static void setDockSlotPackage(Context context, int slot, String pkg, String label) {
+        getPrefs(context).edit()
+                .putString(KEY_DOCK_SLOT_PKG_PREFIX + slot, pkg)
+                .putString(KEY_DOCK_SLOT_LABEL_PREFIX + slot, label)
+                .apply();
+    }
+
     public static void resetDefaults(Context context) {
         getPrefs(context).edit()
                 .putString(KEY_TITLE, DEFAULT_TITLE)
@@ -240,6 +305,13 @@ public class WidgetSettingsManager {
             int[] shuffleIds = manager.getAppWidgetIds(shuffleComp);
             for (int id : shuffleIds) {
                 WallpaperShuffleWidgetProvider.updateAppWidget(context, manager, id);
+            }
+
+            // 7. Weather Widget (2x2)
+            ComponentName weatherComp = new ComponentName(context, WeatherWidgetProvider.class);
+            int[] weatherIds = manager.getAppWidgetIds(weatherComp);
+            for (int id : weatherIds) {
+                WeatherWidgetProvider.updateAppWidget(context, manager, id);
             }
 
             // Broadcast update

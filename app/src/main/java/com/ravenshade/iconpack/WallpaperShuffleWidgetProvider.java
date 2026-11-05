@@ -49,6 +49,15 @@ public class WallpaperShuffleWidgetProvider extends AppWidgetProvider {
 
         RemoteViews views = new RemoteViews(pkg, layoutId);
 
+        // Dynamic Wallpaper-Adaptive Liquid Glass Background Circle
+        int idBg = context.getResources().getIdentifier("widget_glass_bg", "id", pkg);
+        if (idBg != 0) {
+            try {
+                android.graphics.Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassCircle(context, 260);
+                if (glassBm != null) views.setImageViewBitmap(idBg, glassBm);
+            } catch (Throwable ignored) {}
+        }
+
         int idRoot = context.getResources().getIdentifier("widget_shuffle_root", "id", pkg);
         int idTitle = context.getResources().getIdentifier("widget_shuffle_title", "id", pkg);
         int idSub = context.getResources().getIdentifier("widget_shuffle_subtitle", "id", pkg);

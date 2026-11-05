@@ -100,9 +100,22 @@ public class MusicWidget2x2Provider extends AppWidgetProvider {
         int idTitle = context.getResources().getIdentifier("widget_music_title", "id", pkg);
         int idArtist = context.getResources().getIdentifier("widget_music_artist", "id", pkg);
         int idArt = context.getResources().getIdentifier("widget_music_art", "id", pkg);
+        int idCur = context.getResources().getIdentifier("widget_music_time_current", "id", pkg);
+        int idTot = context.getResources().getIdentifier("widget_music_time_total", "id", pkg);
+        int idBg = context.getResources().getIdentifier("widget_glass_bg", "id", pkg);
+
+        // Dynamic Wallpaper-Adaptive Liquid Glass Background
+        if (idBg != 0) {
+            try {
+                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 460, 460, 28);
+                if (glassBm != null) views.setImageViewBitmap(idBg, glassBm);
+            } catch (Throwable ignored) {}
+        }
 
         if (idTitle != 0) views.setTextViewText(idTitle, songTitle);
         if (idArtist != 0) views.setTextViewText(idArtist, songArtist);
+        if (idCur != 0) views.setTextViewText(idCur, RavenMusicManager.getCurrentTimeFormatted(context));
+        if (idTot != 0) views.setTextViewText(idTot, RavenMusicManager.getTotalTimeFormatted(context));
 
         // Play/Pause icon
         int icPlay = context.getResources().getIdentifier("ic_play_arrow", "drawable", pkg);

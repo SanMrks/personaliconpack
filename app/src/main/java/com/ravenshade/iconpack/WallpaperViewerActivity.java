@@ -58,8 +58,14 @@ public class WallpaperViewerActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final String fileName = getIntent().getStringExtra("fileName");
-        final String fileUrl = getIntent().getStringExtra("fileUrl");
+        String fn = getIntent().getStringExtra("fileName");
+        if (fn == null || fn.isEmpty()) fn = getIntent().getStringExtra("local_asset");
+        final String fileName = fn;
+
+        String fu = getIntent().getStringExtra("fileUrl");
+        if (fu == null || fu.isEmpty()) fu = getIntent().getStringExtra("full_url");
+        final String fileUrl = fu;
+
         wallpaperName = getIntent().getStringExtra("title");
         if (wallpaperName == null) wallpaperName = "Wallpaper";
 
@@ -317,14 +323,31 @@ public class WallpaperViewerActivity extends Activity {
                         bmp = BitmapFactory.decodeStream(is);
                         is.close();
                     } else if (fileUrl != null && !fileUrl.isEmpty()) {
-                        URL url = new URL(fileUrl);
-                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                        conn.setConnectTimeout(15000);
-                        conn.setReadTimeout(15000);
-                        conn.setInstanceFollowRedirects(true);
-                        InputStream is = conn.getInputStream();
-                        bmp = BitmapFactory.decodeStream(is);
-                        is.close();
+                        String targetUrl = fileUrl;
+                        HttpURLConnection conn = null;
+                        for (int redirect = 0; redirect < 5; redirect++) {
+                            URL u = new URL(targetUrl);
+                            conn = (HttpURLConnection) u.openConnection();
+                            conn.setConnectTimeout(15000);
+                            conn.setReadTimeout(15000);
+                            conn.setInstanceFollowRedirects(true);
+                            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14; Mobile)");
+                            int status = conn.getResponseCode();
+                            if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM || status == 307 || status == 308) {
+                                String newUrl = conn.getHeaderField("Location");
+                                if (newUrl != null && !newUrl.isEmpty()) {
+                                    targetUrl = newUrl;
+                                    conn.disconnect();
+                                    continue;
+                                }
+                            }
+                            break;
+                        }
+                        if (conn != null && conn.getResponseCode() == 200) {
+                            InputStream is = conn.getInputStream();
+                            bmp = BitmapFactory.decodeStream(is);
+                            is.close();
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

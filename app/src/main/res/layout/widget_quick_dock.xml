@@ -1,61 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_dock_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:background="@drawable/bg_widget_dock"
-    android:padding="8dp"
-    android:gravity="center">
+    android:layout_height="match_parent">
 
+    <!-- Wallpaper-Adaptive Liquid Glass Background Surface -->
     <ImageView
-        android:id="@+id/widget_dock_phone"
-        android:layout_width="0dp"
+        android:id="@+id/widget_glass_bg"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:scaleType="fitCenter"
-        android:padding="4dp"
-        android:src="@drawable/com_google_android_dialer"
-        android:contentDescription="Phone" />
+        android:scaleType="fitXY"
+        android:src="@drawable/bg_widget_dock" />
 
-    <ImageView
-        android:id="@+id/widget_dock_whatsapp"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:scaleType="fitCenter"
-        android:padding="4dp"
-        android:src="@drawable/com_whatsapp"
-        android:contentDescription="WhatsApp" />
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center">
 
-    <ImageView
-        android:id="@+id/widget_dock_browser"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:scaleType="fitCenter"
-        android:padding="4dp"
-        android:src="@drawable/com_vivaldi_browser"
-        android:contentDescription="Browser" />
+        <ImageView
+            android:id="@+id/widget_dock_phone"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:padding="5dp"
+            android:src="@drawable/com_google_android_dialer"
+            android:contentDescription="Phone / Slot 1" />
 
-    <ImageView
-        android:id="@+id/widget_dock_music"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:scaleType="fitCenter"
-        android:padding="4dp"
-        android:src="@drawable/com_convx_music"
-        android:contentDescription="Music" />
+        <ImageView
+            android:id="@+id/widget_dock_whatsapp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:padding="5dp"
+            android:src="@drawable/com_whatsapp"
+            android:contentDescription="WhatsApp / Slot 2" />
 
-    <ImageView
-        android:id="@+id/widget_dock_camera"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:scaleType="fitCenter"
-        android:padding="4dp"
-        android:src="@drawable/com_nothing_camera"
-        android:contentDescription="Camera" />
+        <ImageView
+            android:id="@+id/widget_dock_browser"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:padding="5dp"
+            android:src="@drawable/com_vivaldi_browser"
+            android:contentDescription="Browser / Slot 3" />
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/widget_dock_music"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:padding="5dp"
+            android:src="@drawable/com_convx_music"
+            android:contentDescription="Music / Slot 4" />
+
+        <ImageView
+            android:id="@+id/widget_dock_camera"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:padding="5dp"
+            android:src="@drawable/com_nothing_camera"
+            android:contentDescription="Camera / Slot 5" />
+
+    </LinearLayout>
+
+</FrameLayout>

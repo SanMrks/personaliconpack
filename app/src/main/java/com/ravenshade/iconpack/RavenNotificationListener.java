@@ -183,8 +183,11 @@ public class RavenNotificationListener extends NotificationListenerService {
                 }
             }
 
+            long pos = (state != null) ? state.getPosition() : 0;
+            long dur = (meta != null) ? meta.getLong(MediaMetadata.METADATA_KEY_DURATION) : 0;
+
             if (title != null && !title.isEmpty()) {
-                RavenMusicManager.updateTrack(this, title, artist, isPlaying, controller.getPackageName(), art);
+                RavenMusicManager.updateTrackWithProgress(this, title, artist, isPlaying, controller.getPackageName(), art, pos, dur);
             }
         } catch (Exception e) {
             e.printStackTrace();

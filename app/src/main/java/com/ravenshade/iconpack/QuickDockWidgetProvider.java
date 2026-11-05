@@ -5,7 +5,12 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.widget.RemoteViews;
 
@@ -25,64 +30,93 @@ public class QuickDockWidgetProvider extends AppWidgetProvider {
 
         RemoteViews views = new RemoteViews(pkg, layoutId);
 
-        // 1. Phone / Dialer
-        int idPhone = context.getResources().getIdentifier("widget_dock_phone", "id", pkg);
-        if (idPhone != 0) {
-            Intent phoneIntent = new Intent(Intent.ACTION_DIAL);
-            PendingIntent phonePi = PendingIntent.getActivity(context, 201, phoneIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            views.setOnClickPendingIntent(idPhone, phonePi);
+        // 1. Wallpaper-Adaptive Liquid Glass Background Surface
+        int idBg = context.getResources().getIdentifier("widget_glass_bg", "id", pkg);
+        if (idBg != 0) {
+            try {
+                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 750, 180, 24);
+                if (glassBm != null) views.setImageViewBitmap(idBg, glassBm);
+            } catch (Throwable ignored) {}
         }
 
-        // 2. WhatsApp / Messaging
-        int idWa = context.getResources().getIdentifier("widget_dock_whatsapp", "id", pkg);
-        if (idWa != 0) {
-            Intent waIntent = context.getPackageManager().getLaunchIntentForPackage("com.whatsapp");
-            if (waIntent == null) {
-                waIntent = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_APP_MESSAGING);
-            }
-            PendingIntent waPi = PendingIntent.getActivity(context, 202, waIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            views.setOnClickPendingIntent(idWa, waPi);
-        }
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) flags |= PendingIntent.FLAG_IMMUTABLE;
 
-        // 3. Browser
-        int idBrowser = context.getResources().getIdentifier("widget_dock_browser", "id", pkg);
-        if (idBrowser != 0) {
-            Intent browserIntent = context.getPackageManager().getLaunchIntentForPackage("com.vivaldi.browser");
-            if (browserIntent == null) {
-                browserIntent = context.getPackageManager().getLaunchIntentForPackage("com.android.chrome");
-            }
-            if (browserIntent == null) {
-                browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com"));
-            }
-            PendingIntent browserPi = PendingIntent.getActivity(context, 203, browserIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            views.setOnClickPendingIntent(idBrowser, browserPi);
-        }
+        String[] slotIdNames = {
+                "widget_dock_phone",
+                "widget_dock_whatsapp",
+                "widget_dock_browser",
+                "widget_dock_music",
+                "widget_dock_camera"
+        };
 
-        // 4. Music
-        int idMusic = context.getResources().getIdentifier("widget_dock_music", "id", pkg);
-        if (idMusic != 0) {
-            Intent musicIntent = context.getPackageManager().getLaunchIntentForPackage("com.convx.music");
-            if (musicIntent == null) {
-                musicIntent = context.getPackageManager().getLaunchIntentForPackage("com.spotify.music");
-            }
-            if (musicIntent == null) {
-                musicIntent = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_APP_MUSIC);
-            }
-            PendingIntent musicPi = PendingIntent.getActivity(context, 204, musicIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            views.setOnClickPendingIntent(idMusic, musicPi);
-        }
+        for (int slot = 0; slot < 5; slot++) {
+            int viewId = context.getResources().getIdentifier(slotIdNames[slot], "id", pkg);
+            if (viewId == 0) continue;
 
-        // 5. Camera
-        int idCamera = context.getResources().getIdentifier("widget_dock_camera", "id", pkg);
-        if (idCamera != 0) {
-            Intent camIntent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
-            if (camIntent.resolveActivity(context.getPackageManager()) == null) {
-                camIntent = context.getPackageManager().getLaunchIntentForPackage("com.nothing.camera");
+            String appPkg = WidgetSettingsManager.getDockSlotPackage(context, slot);
+            PendingIntent pi = null;
+            Bitmap customIcon = null;
+
+            if (appPkg != null && !appPkg.isEmpty()) {
+                PackageManager pm = context.getPackageManager();
+                try {
+                    Intent launchIntent = pm.getLaunchIntentForPackage(appPkg);
+                    if (launchIntent != null) {
+                        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        pi = PendingIntent.getActivity(context, 200 + slot, launchIntent, flags);
+                    }
+                    Drawable d = pm.getApplicationIcon(appPkg);
+                    if (d != null) {
+                        int sz = (int) (48 * context.getResources().getDisplayMetrics().density);
+                        customIcon = Bitmap.createBitmap(sz, sz, Bitmap.Config.ARGB_8888);
+                        Canvas c = new Canvas(customIcon);
+                        d.setBounds(0, 0, sz, sz);
+                        d.draw(c);
+                    }
+                } catch (Throwable ignored) {}
             }
-            PendingIntent camPi = PendingIntent.getActivity(context, 205, camIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            views.setOnClickPendingIntent(idCamera, camPi);
+
+            if (customIcon != null) {
+                views.setImageViewBitmap(viewId, customIcon);
+            }
+
+            if (pi != null) {
+                views.setOnClickPendingIntent(viewId, pi);
+            } else {
+                // Fallback default actions
+                setupDefaultSlotAction(context, views, slot, viewId, flags);
+            }
         }
 
         appWidgetManager.updateAppWidget(appWidgetId, views);
+    }
+
+    private static void setupDefaultSlotAction(Context context, RemoteViews views, int slot, int viewId, int flags) {
+        PackageManager pm = context.getPackageManager();
+        Intent intent = null;
+        if (slot == 0) {
+            intent = new Intent(Intent.ACTION_DIAL);
+        } else if (slot == 1) {
+            intent = pm.getLaunchIntentForPackage("com.whatsapp");
+            if (intent == null) intent = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_APP_MESSAGING);
+        } else if (slot == 2) {
+            intent = pm.getLaunchIntentForPackage("com.vivaldi.browser");
+            if (intent == null) intent = pm.getLaunchIntentForPackage("com.android.chrome");
+            if (intent == null) intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com"));
+        } else if (slot == 3) {
+            intent = pm.getLaunchIntentForPackage("com.convx.music");
+            if (intent == null) intent = pm.getLaunchIntentForPackage("com.spotify.music");
+            if (intent == null) intent = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_APP_MUSIC);
+        } else if (slot == 4) {
+            intent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
+            if (intent.resolveActivity(pm) == null) intent = pm.getLaunchIntentForPackage("com.nothing.camera");
+        }
+
+        if (intent != null) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            PendingIntent pi = PendingIntent.getActivity(context, 250 + slot, intent, flags);
+            views.setOnClickPendingIntent(viewId, pi);
+        }
     }
 }

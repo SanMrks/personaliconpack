@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.os.BatteryManager;
 import android.provider.AlarmClock;
 import android.view.View;
@@ -49,6 +50,15 @@ public class BlackRavenWidgetProvider extends AppWidgetProvider {
         if (layoutId == 0) return;
 
         RemoteViews views = new RemoteViews(pkg, layoutId);
+
+        // Dynamic Wallpaper-Adaptive Liquid Glass Background
+        int idBg = context.getResources().getIdentifier("widget_glass_bg", "id", pkg);
+        if (idBg != 0) {
+            try {
+                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 750, 360, 28);
+                if (glassBm != null) views.setImageViewBitmap(idBg, glassBm);
+            } catch (Throwable ignored) {}
+        }
 
         // 1. User Editable Settings
         String customTitle = WidgetSettingsManager.getTitle(context);

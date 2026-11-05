@@ -13,6 +13,7 @@ import android.view.KeyEvent;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Locale;
 
 public class RavenMusicManager {
 
@@ -21,6 +22,8 @@ public class RavenMusicManager {
     private static final String KEY_ARTIST = "music_artist";
     private static final String KEY_IS_PLAYING = "music_is_playing";
     private static final String KEY_PACKAGE = "music_pkg";
+    private static final String KEY_POSITION = "music_position_ms";
+    private static final String KEY_DURATION = "music_duration_ms";
 
     private static Bitmap sCachedArt = null;
 
@@ -29,6 +32,10 @@ public class RavenMusicManager {
     }
 
     public static synchronized void updateTrack(Context context, String title, String artist, boolean isPlaying, String pkg, Bitmap art) {
+        updateTrackWithProgress(context, title, artist, isPlaying, pkg, art, 0, 0);
+    }
+
+    public static synchronized void updateTrackWithProgress(Context context, String title, String artist, boolean isPlaying, String pkg, Bitmap art, long positionMs, long durationMs) {
         if (title == null || title.trim().isEmpty()) {
             title = WidgetSettingsManager.getMusicDefaultTitle(context);
         }
@@ -36,12 +43,15 @@ public class RavenMusicManager {
             artist = WidgetSettingsManager.getMusicDefaultArtist(context);
         }
 
-        getPrefs(context).edit()
+        SharedPreferences.Editor ed = getPrefs(context).edit()
                 .putString(KEY_TITLE, title)
                 .putString(KEY_ARTIST, artist)
                 .putBoolean(KEY_IS_PLAYING, isPlaying)
-                .putString(KEY_PACKAGE, pkg != null ? pkg : "")
-                .apply();
+                .putString(KEY_PACKAGE, pkg != null ? pkg : "");
+
+        if (positionMs > 0) ed.putLong(KEY_POSITION, positionMs);
+        if (durationMs > 0) ed.putLong(KEY_DURATION, durationMs);
+        ed.apply();
 
         if (art != null) {
             sCachedArt = art;
@@ -74,6 +84,34 @@ public class RavenMusicManager {
 
     public static String getPlayingPackage(Context context) {
         return getPrefs(context).getString(KEY_PACKAGE, "");
+    }
+
+    public static long getPosition(Context context) {
+        return getPrefs(context).getLong(KEY_POSITION, 84000); // default 01:24
+    }
+
+    public static long getDuration(Context context) {
+        return getPrefs(context).getLong(KEY_DURATION, 225000); // default 03:45
+    }
+
+    public static String getCurrentTimeFormatted(Context context) {
+        return formatTime(getPosition(context));
+    }
+
+    public static String getTotalTimeFormatted(Context context) {
+        return formatTime(getDuration(context));
+    }
+
+    public static String formatTime(long ms) {
+        if (ms <= 0) return "00:00";
+        long totalSec = ms / 1000;
+        long s = totalSec % 60;
+        long m = (totalSec / 60) % 60;
+        long h = totalSec / 3600;
+        if (h > 0) {
+            return String.format(Locale.getDefault(), "%d:%02d:%02d", h, m, s);
+        }
+        return String.format(Locale.getDefault(), "%02d:%02d", m, s);
     }
 
     public static Bitmap getAlbumArt(Context context) {

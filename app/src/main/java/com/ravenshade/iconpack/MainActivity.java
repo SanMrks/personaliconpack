@@ -21,6 +21,9 @@ import android.net.Uri;
 import android.media.RingtoneManager;
 import android.provider.Settings;
 import java.util.Collections;
+import java.util.Comparator;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.text.TextUtils;
 import android.os.BatteryManager;
 import android.os.Build;
@@ -268,7 +271,15 @@ public class MainActivity extends Activity {
         btn.setTextColor(Color.WHITE);
         btn.setTextSize(12);
         btn.setTypeface(Typeface.DEFAULT_BOLD);
-        btn.setLetterSpacing(0.05f);
+        btn.setLetterSpacing(0.04f);
+        btn.setSingleLine(true);
+        btn.setEllipsize(TextUtils.TruncateAt.END);
+        btn.setAllCaps(false);
+        btn.setPadding((int)(14 * density), 0, (int)(14 * density), 0);
+        btn.setMinHeight(0);
+        btn.setMinimumHeight(0);
+        btn.setMinWidth(0);
+        btn.setMinimumWidth(0);
 
         GradientDrawable glass = new GradientDrawable();
         glass.setColor(Color.parseColor("#1AFFFFFF"));
@@ -570,6 +581,14 @@ public class MainActivity extends Activity {
             3
         ));
 
+        // 7. Raven Weather (2x2)
+        widgetsRow.addView(createWidgetPreviewCard(
+            "Raven Weather (2x2)",
+            "Live Weather • Obsidian Caustic Glass",
+            WeatherWidgetProvider.class,
+            7
+        ));
+
         hsvWidgets.addView(widgetsRow);
         root.addView(hsvWidgets);
 
@@ -595,23 +614,26 @@ public class MainActivity extends Activity {
         LinearLayout studioTabsRow = new LinearLayout(this);
         studioTabsRow.setOrientation(LinearLayout.HORIZONTAL);
 
-        final Button tabClock = createLiquidGlassPillButton("🕒 Clock (4x2)", null);
-        final Button tabMusic = createLiquidGlassPillButton("🎵 Music (4x2 / 2x2)", null);
+        final Button tabClock = createLiquidGlassPillButton("🕒 Clock", null);
+        final Button tabMusic = createLiquidGlassPillButton("🎵 Music", null);
+        final Button tabWeather = createLiquidGlassPillButton("⛅ Weather", null);
         final Button tabShuffle = createLiquidGlassPillButton("💥 Pop (1x1)", null);
-        final Button tabDock = createLiquidGlassPillButton("📱 Quick Dock (4x1)", null);
-        final Button tabAnime = createLiquidGlassPillButton("⛩️ Anime (2x2)", null);
+        final Button tabDock = createLiquidGlassPillButton("📱 Quick Dock", null);
+        final Button tabAnime = createLiquidGlassPillButton("⛩️ Anime", null);
 
         int tabMargin = (int)(8 * density);
-        LinearLayout.LayoutParams tLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int)(40 * density));
+        LinearLayout.LayoutParams tLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int)(38 * density));
         tLp.setMargins(0, 0, tabMargin, 0);
         tabClock.setLayoutParams(tLp);
         tabMusic.setLayoutParams(tLp);
+        tabWeather.setLayoutParams(tLp);
         tabShuffle.setLayoutParams(tLp);
         tabDock.setLayoutParams(tLp);
-        tabAnime.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int)(40 * density)));
+        tabAnime.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int)(38 * density)));
 
         studioTabsRow.addView(tabClock);
         studioTabsRow.addView(tabMusic);
+        studioTabsRow.addView(tabWeather);
         studioTabsRow.addView(tabShuffle);
         studioTabsRow.addView(tabDock);
         studioTabsRow.addView(tabAnime);
@@ -636,6 +658,8 @@ public class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         formLp.topMargin = (int)(14 * density);
         formCard.setLayoutParams(formLp);
+
+        final Runnable[] updatePreviewRef = new Runnable[1];
 
         // --- SUBFORM 0: Black Raven Clock ---
         final LinearLayout formClock = new LinearLayout(this);
@@ -706,7 +730,40 @@ public class MainActivity extends Activity {
         final EditText etShuffleSub = createGlassEditText(WidgetSettingsManager.getShuffleSubtitle(this));
         formShuffle.addView(etShuffleSub);
 
-        // --- SUBFORM 3: Quick App Dock ---
+        // --- SUBFORM 2: Weather Widget ---
+        final LinearLayout formWeather = new LinearLayout(this);
+        formWeather.setOrientation(LinearLayout.VERTICAL);
+        formWeather.setVisibility(View.GONE);
+
+        formWeather.addView(createFieldLabel("CITY / LOCATION"));
+        final EditText etWeatherCity = createGlassEditText(WidgetSettingsManager.getWeatherCity(this));
+        formWeather.addView(etWeatherCity);
+
+        formWeather.addView(createFieldLabel("WEATHER TAG / MOOD"));
+        final EditText etWeatherTag = createGlassEditText(WidgetSettingsManager.getWeatherTag(this));
+        formWeather.addView(etWeatherTag);
+
+        LinearLayout unitRow = new LinearLayout(this);
+        unitRow.setOrientation(LinearLayout.HORIZONTAL);
+        unitRow.setPadding(0, (int)(4 * density), 0, (int)(8 * density));
+        final Switch switchUnit = new Switch(this);
+        switchUnit.setText("Use Fahrenheit (°F) instead of Celsius (°C)");
+        switchUnit.setTextColor(Color.WHITE);
+        switchUnit.setTextSize(12);
+        switchUnit.setChecked("F".equalsIgnoreCase(WidgetSettingsManager.getWeatherUnit(this)));
+        unitRow.addView(switchUnit);
+        formWeather.addView(unitRow);
+
+        Button btnRefreshWeather = createLiquidGlassPillButton("🔄 Fetch Live Weather Now", new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                RavenWeatherManager.refreshWeatherAsync(MainActivity.this, true);
+                Toast.makeText(MainActivity.this, "Updating live weather from satellite...", Toast.LENGTH_SHORT).show();
+            }
+        });
+        btnRefreshWeather.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int)(40 * density)));
+        formWeather.addView(btnRefreshWeather);
+
+        // --- SUBFORM 3: Quick App Dock (With Interactive Slot Customization) ---
         final LinearLayout formDock = new LinearLayout(this);
         formDock.setOrientation(LinearLayout.VERTICAL);
         formDock.setVisibility(View.GONE);
@@ -718,6 +775,55 @@ public class MainActivity extends Activity {
         formDock.addView(createFieldLabel("DOCK TAG"));
         final EditText etDockTag = createGlassEditText(WidgetSettingsManager.getDockTag(this));
         formDock.addView(etDockTag);
+
+        formDock.addView(createFieldLabel("CUSTOMIZE DOCK APPS (5 SLOTS)"));
+        final ImageView[] dockSlotIcons = new ImageView[5];
+        final TextView[] dockSlotLabels = new TextView[5];
+
+        for (int s = 0; s < 5; s++) {
+            final int slotIndex = s;
+            LinearLayout slotRow = new LinearLayout(this);
+            slotRow.setOrientation(LinearLayout.HORIZONTAL);
+            slotRow.setGravity(Gravity.CENTER_VERTICAL);
+            slotRow.setPadding(0, (int)(5 * density), 0, (int)(5 * density));
+
+            ImageView sIv = new ImageView(this);
+            sIv.setLayoutParams(new LinearLayout.LayoutParams((int)(34 * density), (int)(34 * density)));
+            sIv.setBackground(createLiquidGlassCapsule());
+            sIv.setPadding(4, 4, 4, 4);
+            updateSlotIconView(slotIndex, sIv);
+            dockSlotIcons[slotIndex] = sIv;
+            slotRow.addView(sIv);
+
+            TextView sTv = new TextView(this);
+            sTv.setText("Slot " + (slotIndex + 1) + ": " + WidgetSettingsManager.getDockSlotLabel(this, slotIndex));
+            sTv.setTextColor(Color.WHITE);
+            sTv.setTextSize(12);
+            sTv.setTypeface(Typeface.DEFAULT_BOLD);
+            sTv.setPadding((int)(10 * density), 0, (int)(6 * density), 0);
+            sTv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
+            sTv.setSingleLine(true);
+            sTv.setEllipsize(TextUtils.TruncateAt.END);
+            dockSlotLabels[slotIndex] = sTv;
+            slotRow.addView(sTv);
+
+            Button btnPick = createLiquidGlassPillButton("Change", new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    showAppChooserDialog(slotIndex, new Runnable() {
+                        @Override public void run() {
+                            dockSlotLabels[slotIndex].setText("Slot " + (slotIndex + 1) + ": " + WidgetSettingsManager.getDockSlotLabel(MainActivity.this, slotIndex));
+                            updateSlotIconView(slotIndex, dockSlotIcons[slotIndex]);
+                            if (updatePreviewRef[0] != null) updatePreviewRef[0].run();
+                        }
+                    });
+                }
+            });
+            btnPick.setTextSize(11);
+            btnPick.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int)(34 * density)));
+            slotRow.addView(btnPick);
+
+            formDock.addView(slotRow);
+        }
 
         // --- SUBFORM 4: Anime Mini Clock ---
         final LinearLayout formAnime = new LinearLayout(this);
@@ -734,6 +840,7 @@ public class MainActivity extends Activity {
 
         formCard.addView(formClock);
         formCard.addView(formMusic);
+        formCard.addView(formWeather);
         formCard.addView(formShuffle);
         formCard.addView(formDock);
         formCard.addView(formAnime);
@@ -759,6 +866,11 @@ public class MainActivity extends Activity {
                 WidgetSettingsManager.setMusicDefaultTitle(MainActivity.this, etMusicTitle.getText().toString().trim());
                 WidgetSettingsManager.setMusicDefaultArtist(MainActivity.this, etMusicArtist.getText().toString().trim());
                 WidgetSettingsManager.setMusicTag(MainActivity.this, etMusicTag.getText().toString().trim());
+
+                // Weather
+                WidgetSettingsManager.setWeatherCity(MainActivity.this, etWeatherCity.getText().toString().trim());
+                WidgetSettingsManager.setWeatherTag(MainActivity.this, etWeatherTag.getText().toString().trim());
+                WidgetSettingsManager.setWeatherUnit(MainActivity.this, switchUnit.isChecked() ? "F" : "C");
 
                 // 3. Shuffle
                 WidgetSettingsManager.setShuffleTitle(MainActivity.this, etShuffleTitle.getText().toString().trim());
@@ -816,6 +928,7 @@ public class MainActivity extends Activity {
 
         // Preview rendering function
         final Runnable updatePreview = new Runnable() {
+
             @Override public void run() {
                 dynamicPreviewCard.removeAllViews();
                 Date now = new Date();
@@ -879,18 +992,27 @@ public class MainActivity extends Activity {
                     dynamicPreviewCard.addView(clkRow);
 
                 } else if (formMusic.getVisibility() == View.VISIBLE) {
-                    // Music Preview
+                    // Music Preview: Larger art, centered text, audio wave, music timer
+                    LinearLayout mBox = new LinearLayout(MainActivity.this);
+                    mBox.setOrientation(LinearLayout.VERTICAL);
+                    mBox.setGravity(Gravity.CENTER);
+
                     LinearLayout mRow = new LinearLayout(MainActivity.this);
                     mRow.setOrientation(LinearLayout.HORIZONTAL);
                     mRow.setGravity(Gravity.CENTER_VERTICAL);
 
                     ImageView ivArt = new ImageView(MainActivity.this);
-                    int artSz = (int)(52 * density);
+                    int artSz = (int)(62 * density);
                     ivArt.setLayoutParams(new LinearLayout.LayoutParams(artSz, artSz));
-                    int musicRes = getResources().getIdentifier("ic_music_note", "drawable", getPackageName());
-                    if (musicRes != 0) ivArt.setImageResource(musicRes);
+                    Bitmap liveArt = RavenMusicManager.getAlbumArt(MainActivity.this);
+                    if (liveArt != null && !liveArt.isRecycled()) {
+                        ivArt.setImageBitmap(liveArt);
+                    } else {
+                        int musicRes = getResources().getIdentifier("ic_music_note", "drawable", getPackageName());
+                        if (musicRes != 0) ivArt.setImageResource(musicRes);
+                    }
                     ivArt.setBackground(createLiquidGlassCapsule());
-                    ivArt.setPadding(6, 6, 6, 6);
+                    ivArt.setPadding(4, 4, 4, 4);
                     mRow.addView(ivArt);
 
                     LinearLayout mCol = new LinearLayout(MainActivity.this);
@@ -910,42 +1032,158 @@ public class MainActivity extends Activity {
                     tTxt.setTextColor(Color.WHITE);
                     tTxt.setTextSize(14);
                     tTxt.setTypeface(Typeface.DEFAULT_BOLD);
+                    tTxt.setSingleLine(true);
+                    tTxt.setEllipsize(TextUtils.TruncateAt.END);
                     mCol.addView(tTxt);
 
                     TextView aTxt = new TextView(MainActivity.this);
                     aTxt.setText(etMusicArtist.getText().toString().isEmpty() ? "Obsidian Session" : etMusicArtist.getText().toString());
                     aTxt.setTextColor(Color.parseColor("#B8B8B8"));
                     aTxt.setTextSize(11);
+                    aTxt.setSingleLine(true);
+                    aTxt.setEllipsize(TextUtils.TruncateAt.END);
                     mCol.addView(aTxt);
 
+                    // Waveform + Music Time
+                    LinearLayout wRow = new LinearLayout(MainActivity.this);
+                    wRow.setOrientation(LinearLayout.HORIZONTAL);
+                    wRow.setGravity(Gravity.CENTER_VERTICAL);
+                    wRow.setPadding(0, 4, 0, 0);
+
+                    TextView tvCur = new TextView(MainActivity.this);
+                    tvCur.setText(RavenMusicManager.getCurrentTimeFormatted(MainActivity.this));
+                    tvCur.setTextColor(Color.WHITE);
+                    tvCur.setTextSize(9);
+                    wRow.addView(tvCur);
+
+                    ImageView ivWave = new ImageView(MainActivity.this);
+                    ivWave.setLayoutParams(new LinearLayout.LayoutParams(0, (int)(14 * density), 1.0f));
+                    ivWave.setScaleType(ImageView.ScaleType.FIT_XY);
+                    ivWave.setPadding(6, 0, 6, 0);
+                    int waveRes = getResources().getIdentifier("ic_audio_wave", "drawable", getPackageName());
+                    if (waveRes != 0) ivWave.setImageResource(waveRes);
+                    wRow.addView(ivWave);
+
+                    TextView tvTot = new TextView(MainActivity.this);
+                    tvTot.setText(RavenMusicManager.getTotalTimeFormatted(MainActivity.this));
+                    tvTot.setTextColor(Color.parseColor("#80FFFFFF"));
+                    tvTot.setTextSize(9);
+                    wRow.addView(tvTot);
+
+                    mCol.addView(wRow);
                     mRow.addView(mCol);
-                    dynamicPreviewCard.addView(mRow);
+                    mBox.addView(mRow);
+                    dynamicPreviewCard.addView(mBox);
+
+                } else if (formWeather.getVisibility() == View.VISIBLE) {
+                    // Weather Preview
+                    LinearLayout wBox = new LinearLayout(MainActivity.this);
+                    wBox.setOrientation(LinearLayout.VERTICAL);
+                    wBox.setGravity(Gravity.CENTER);
+
+                    LinearLayout topRow = new LinearLayout(MainActivity.this);
+                    topRow.setOrientation(LinearLayout.HORIZONTAL);
+                    topRow.setGravity(Gravity.CENTER_VERTICAL);
+
+                    ImageView ivW = new ImageView(MainActivity.this);
+                    int wSz = (int)(40 * density);
+                    ivW.setLayoutParams(new LinearLayout.LayoutParams(wSz, wSz));
+                    ivW.setBackground(createLiquidGlassCapsule());
+                    ivW.setPadding(5, 5, 5, 5);
+                    int wRes = getResources().getIdentifier(RavenWeatherManager.getIconName(MainActivity.this), "drawable", getPackageName());
+                    if (wRes == 0) wRes = getResources().getIdentifier("ic_weather_sunny", "drawable", getPackageName());
+                    if (wRes != 0) ivW.setImageResource(wRes);
+                    topRow.addView(ivW);
+
+                    LinearLayout tCol = new LinearLayout(MainActivity.this);
+                    tCol.setOrientation(LinearLayout.VERTICAL);
+                    tCol.setGravity(Gravity.END);
+                    tCol.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
+
+                    TextView tvTemp = new TextView(MainActivity.this);
+                    int tmp = RavenWeatherManager.getTemperature(MainActivity.this);
+                    if (switchUnit.isChecked()) tmp = (int) Math.round(tmp * 1.8 + 32);
+                    tvTemp.setText(tmp + "°");
+                    tvTemp.setTextColor(Color.WHITE);
+                    tvTemp.setTextSize(26);
+                    tvTemp.setTypeface(Typeface.DEFAULT_BOLD);
+                    tCol.addView(tvTemp);
+
+                    TextView tvUnit = new TextView(MainActivity.this);
+                    tvUnit.setText(switchUnit.isChecked() ? "FAHRENHEIT" : "CELSIUS");
+                    tvUnit.setTextColor(Color.parseColor("#80FFFFFF"));
+                    tvUnit.setTextSize(8);
+                    tvUnit.setTypeface(Typeface.DEFAULT_BOLD);
+                    tCol.addView(tvUnit);
+
+                    topRow.addView(tCol);
+                    wBox.addView(topRow);
+
+                    TextView tvCond = new TextView(MainActivity.this);
+                    tvCond.setText(RavenWeatherManager.getCondition(MainActivity.this));
+                    tvCond.setTextColor(Color.parseColor("#FFFF2E4D"));
+                    tvCond.setTextSize(13);
+                    tvCond.setTypeface(Typeface.DEFAULT_BOLD);
+                    tvCond.setPadding(0, 4, 0, 0);
+                    wBox.addView(tvCond);
+
+                    TextView tvTag = new TextView(MainActivity.this);
+                    String tagVal = etWeatherTag.getText().toString().trim();
+                    tvTag.setText(tagVal.isEmpty() ? "OBSIDIAN BREEZE" : tagVal);
+                    tvTag.setTextColor(Color.parseColor("#B8B8B8"));
+                    tvTag.setTextSize(10);
+                    wBox.addView(tvTag);
+
+                    TextView tvCity = new TextView(MainActivity.this);
+                    String cityVal = etWeatherCity.getText().toString().trim();
+                    tvCity.setText((cityVal.isEmpty() ? "Bengaluru" : cityVal) + " • H: " + RavenWeatherManager.getHigh(MainActivity.this) + "°  L: " + RavenWeatherManager.getLow(MainActivity.this) + "°");
+                    tvCity.setTextColor(Color.WHITE);
+                    tvCity.setTextSize(11);
+                    tvCity.setTypeface(Typeface.DEFAULT_BOLD);
+                    tvCity.setPadding(0, 3, 0, 0);
+                    wBox.addView(tvCity);
+
+                    dynamicPreviewCard.addView(wBox);
 
                 } else if (formShuffle.getVisibility() == View.VISIBLE) {
-                    // Pop Wallpaper (Pure Text) Preview
+                    // Pop Wallpaper (Pure Text) Preview - Centered circular container
+                    FrameLayout cWrap = new FrameLayout(MainActivity.this);
+                    int cSz = (int)(105 * density);
+                    LinearLayout.LayoutParams cwLp = new LinearLayout.LayoutParams(cSz, cSz);
+                    cwLp.gravity = Gravity.CENTER;
+                    cWrap.setLayoutParams(cwLp);
+
+                    ImageView cBg = new ImageView(MainActivity.this);
+                    cBg.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                    cBg.setImageBitmap(RavenGlassThemeManager.createLiquidGlassCircle(MainActivity.this, cSz));
+                    cWrap.addView(cBg);
+
                     LinearLayout sBox = new LinearLayout(MainActivity.this);
                     sBox.setOrientation(LinearLayout.VERTICAL);
                     sBox.setGravity(Gravity.CENTER);
-                    sBox.setPadding(0, (int)(14 * density), 0, (int)(14 * density));
+                    sBox.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
                     TextView sTitle = new TextView(MainActivity.this);
                     sTitle.setText(etShuffleTitle.getText().toString().isEmpty() ? "POP" : etShuffleTitle.getText().toString());
                     sTitle.setTextColor(Color.WHITE);
-                    sTitle.setTextSize(22);
+                    sTitle.setTextSize(18);
                     sTitle.setTypeface(Typeface.DEFAULT_BOLD);
-                    sTitle.setLetterSpacing(0.16f);
+                    sTitle.setLetterSpacing(0.14f);
+                    sTitle.setSingleLine(true);
                     sBox.addView(sTitle);
 
                     TextView sSub = new TextView(MainActivity.this);
                     sSub.setText(etShuffleSub.getText().toString().isEmpty() ? "WALLPAPER" : etShuffleSub.getText().toString());
                     sSub.setTextColor(Color.parseColor("#FFFF2E4D"));
-                    sSub.setTextSize(10);
+                    sSub.setTextSize(9);
                     sSub.setTypeface(Typeface.DEFAULT_BOLD);
-                    sSub.setLetterSpacing(0.14f);
-                    sSub.setPadding(0, 4, 0, 0);
+                    sSub.setLetterSpacing(0.12f);
+                    sSub.setSingleLine(true);
+                    sSub.setPadding(0, 2, 0, 0);
                     sBox.addView(sSub);
 
-                    dynamicPreviewCard.addView(sBox);
+                    cWrap.addView(sBox);
+                    dynamicPreviewCard.addView(cWrap);
 
                 } else if (formDock.getVisibility() == View.VISIBLE) {
                     // Dock Preview
@@ -964,18 +1202,17 @@ public class MainActivity extends Activity {
                     dockIcons.setOrientation(LinearLayout.HORIZONTAL);
                     dockIcons.setGravity(Gravity.CENTER);
                     dockIcons.setPadding(0, 8, 0, 0);
-                    String[] icons = {"com_google_android_dialer", "com_whatsapp", "com_vivaldi_browser", "com_convx_music", "com_nothing_camera"};
-                    int sz = (int)(32 * density);
-                    for (String ic : icons) {
-                        int res = getResources().getIdentifier(ic, "drawable", getPackageName());
-                        if (res != 0) {
-                            ImageView iv = new ImageView(MainActivity.this);
-                            LinearLayout.LayoutParams ivLp = new LinearLayout.LayoutParams(sz, sz);
-                            ivLp.setMargins(6, 0, 6, 0);
-                            iv.setLayoutParams(ivLp);
-                            iv.setImageResource(res);
-                            dockIcons.addView(iv);
-                        }
+
+                    for (int s = 0; s < 5; s++) {
+                        ImageView iv = new ImageView(MainActivity.this);
+                        int sz = (int)(32 * density);
+                        LinearLayout.LayoutParams ivLp = new LinearLayout.LayoutParams(sz, sz);
+                        ivLp.setMargins(6, 0, 6, 0);
+                        iv.setLayoutParams(ivLp);
+                        iv.setPadding(3, 3, 3, 3);
+                        iv.setBackground(createLiquidGlassCapsule());
+                        updateSlotIconView(s, iv);
+                        dockIcons.addView(iv);
                     }
                     dBox.addView(dockIcons);
                     dynamicPreviewCard.addView(dBox);
@@ -1016,12 +1253,14 @@ public class MainActivity extends Activity {
             @Override public void onClick(View v) {
                 formClock.setVisibility(v == tabClock ? View.VISIBLE : View.GONE);
                 formMusic.setVisibility(v == tabMusic ? View.VISIBLE : View.GONE);
+                formWeather.setVisibility(v == tabWeather ? View.VISIBLE : View.GONE);
                 formShuffle.setVisibility(v == tabShuffle ? View.VISIBLE : View.GONE);
                 formDock.setVisibility(v == tabDock ? View.VISIBLE : View.GONE);
                 formAnime.setVisibility(v == tabAnime ? View.VISIBLE : View.GONE);
 
                 tabClock.setBackground(v == tabClock ? createLiquidRedGradient(20) : createGlassPill("#12FFFFFF", "#28FFFFFF", 20 * density));
                 tabMusic.setBackground(v == tabMusic ? createLiquidRedGradient(20) : createGlassPill("#12FFFFFF", "#28FFFFFF", 20 * density));
+                tabWeather.setBackground(v == tabWeather ? createLiquidRedGradient(20) : createGlassPill("#12FFFFFF", "#28FFFFFF", 20 * density));
                 tabShuffle.setBackground(v == tabShuffle ? createLiquidRedGradient(20) : createGlassPill("#12FFFFFF", "#28FFFFFF", 20 * density));
                 tabDock.setBackground(v == tabDock ? createLiquidRedGradient(20) : createGlassPill("#12FFFFFF", "#28FFFFFF", 20 * density));
                 tabAnime.setBackground(v == tabAnime ? createLiquidRedGradient(20) : createGlassPill("#12FFFFFF", "#28FFFFFF", 20 * density));
@@ -1030,8 +1269,10 @@ public class MainActivity extends Activity {
             }
         };
 
+        updatePreviewRef[0] = updatePreview;
         tabClock.setOnClickListener(tabListener);
         tabMusic.setOnClickListener(tabListener);
+        tabWeather.setOnClickListener(tabListener);
         tabShuffle.setOnClickListener(tabListener);
         tabDock.setOnClickListener(tabListener);
         tabAnime.setOnClickListener(tabListener);
@@ -1051,7 +1292,12 @@ public class MainActivity extends Activity {
         etMusicTag.addTextChangedListener(tw);
         etShuffleTitle.addTextChangedListener(tw);
         etShuffleSub.addTextChangedListener(tw);
-                etDockTitle.addTextChangedListener(tw);
+        etWeatherCity.addTextChangedListener(tw);
+        etWeatherTag.addTextChangedListener(tw);
+        switchUnit.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton b, boolean isChecked) { updatePreview.run(); }
+        });
+        etDockTitle.addTextChangedListener(tw);
         etDockTag.addTextChangedListener(tw);
         etAnimeTitle.addTextChangedListener(tw);
         etAnimeTag.addTextChangedListener(tw);
@@ -1111,19 +1357,46 @@ public class MainActivity extends Activity {
         masterTextCol.addView(tvAutoWpStatus);
         masterRow.addView(masterTextCol);
 
-        final Switch switchAutoWp = new Switch(this);
-        switchAutoWp.setChecked(AutoWallpaperManager.isAutoEnabled(this));
-        switchAutoWp.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton b, boolean isChecked) {
-                AutoWallpaperManager.setAutoEnabled(MainActivity.this, isChecked);
-                tvAutoWpStatus.setText(isChecked
-                        ? ("● Active: Every " + AutoWallpaperManager.getIntervalMinutes(MainActivity.this) + " mins")
-                        : "○ Inactive (Manual only)");
-                tvAutoWpStatus.setTextColor(isChecked ? Color.parseColor("#44D62C") : Color.parseColor("#8E8E93"));
-                Toast.makeText(MainActivity.this, isChecked ? "✓ Automatic wallpaper changer enabled" : "Automatic wallpaper changer paused", Toast.LENGTH_SHORT).show();
+        final Button btnToggleOn = createLiquidGlassPillButton("● ON", null);
+        final Button btnToggleOff = createLiquidGlassPillButton("○ OFF", null);
+
+        final Runnable updateAutoToggleUI = new Runnable() {
+            @Override public void run() {
+                boolean isEn = AutoWallpaperManager.isAutoEnabled(MainActivity.this);
+                btnToggleOn.setBackground(isEn ? createLiquidRedGradient(20) : createGlassPill("#12FFFFFF", "#28FFFFFF", 20 * density));
+                btnToggleOff.setBackground(!isEn ? createLiquidRedGradient(20) : createGlassPill("#12FFFFFF", "#28FFFFFF", 20 * density));
+                tvAutoWpStatus.setText(isEn
+                        ? ("● ACTIVE: Every " + AutoWallpaperManager.getIntervalMinutes(MainActivity.this) + " mins")
+                        : "○ PAUSED / OFF (Manual only)");
+                tvAutoWpStatus.setTextColor(isEn ? Color.parseColor("#44D62C") : Color.parseColor("#8E8E93"));
+            }
+        };
+
+        btnToggleOn.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                AutoWallpaperManager.setAutoEnabled(MainActivity.this, true);
+                updateAutoToggleUI.run();
+                Toast.makeText(MainActivity.this, "✓ Auto Wallpaper Changer Enabled (ON)", Toast.LENGTH_SHORT).show();
             }
         });
-        masterRow.addView(switchAutoWp);
+
+        btnToggleOff.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                AutoWallpaperManager.setAutoEnabled(MainActivity.this, false);
+                updateAutoToggleUI.run();
+                Toast.makeText(MainActivity.this, "Auto Wallpaper Changer Paused (OFF)", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        int toggleMargin = (int)(6 * density);
+        LinearLayout.LayoutParams btnOnLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int)(36 * density));
+        btnOnLp.setMargins(0, 0, toggleMargin, 0);
+        btnToggleOn.setLayoutParams(btnOnLp);
+        btnToggleOff.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int)(36 * density)));
+
+        updateAutoToggleUI.run();
+        masterRow.addView(btnToggleOn);
+        masterRow.addView(btnToggleOff);
         autoWpCard.addView(masterRow);
 
         // Divider
@@ -1659,8 +1932,13 @@ public class MainActivity extends Activity {
         EditText et = new EditText(this);
         et.setText(initialText);
         et.setTextColor(Color.WHITE);
-        et.setTextSize(14);
-        et.setPadding((int)(14 * density), (int)(12 * density), (int)(14 * density), (int)(12 * density));
+        et.setTextSize(13);
+        et.setSingleLine(true);
+        et.setEllipsize(TextUtils.TruncateAt.END);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int)(44 * density));
+        lp.setMargins(0, 0, 0, (int)(8 * density));
+        et.setLayoutParams(lp);
+        et.setPadding((int)(14 * density), (int)(10 * density), (int)(14 * density), (int)(10 * density));
         et.setBackground(createGlassPill("#14FFFFFF", "#3DFFFFFF", 14 * density));
         return et;
     }
@@ -1847,8 +2125,15 @@ public class MainActivity extends Activity {
             @Override public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, WallpaperViewerActivity.class);
                 intent.putExtra("title", title);
-                if (localAsset != null) intent.putExtra("local_asset", localAsset);
-                if (fullUrl != null) intent.putExtra("full_url", fullUrl);
+                if (localAsset != null) {
+                    intent.putExtra("fileName", localAsset);
+                    intent.putExtra("local_asset", localAsset);
+                }
+                String targetUrl = (fullUrl != null && !fullUrl.isEmpty()) ? fullUrl : thumbUrl;
+                if (targetUrl != null) {
+                    intent.putExtra("fileUrl", targetUrl);
+                    intent.putExtra("full_url", targetUrl);
+                }
                 startActivity(intent);
             }
         });
@@ -1898,8 +2183,15 @@ public class MainActivity extends Activity {
             @Override public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, WallpaperViewerActivity.class);
                 intent.putExtra("title", title);
-                if (localAsset != null) intent.putExtra("local_asset", localAsset);
-                if (fullUrl != null) intent.putExtra("full_url", fullUrl);
+                if (localAsset != null) {
+                    intent.putExtra("fileName", localAsset);
+                    intent.putExtra("local_asset", localAsset);
+                }
+                String targetUrl = (fullUrl != null && !fullUrl.isEmpty()) ? fullUrl : thumbUrl;
+                if (targetUrl != null) {
+                    intent.putExtra("fileUrl", targetUrl);
+                    intent.putExtra("full_url", targetUrl);
+                }
                 startActivity(intent);
             }
         });
@@ -2090,6 +2382,35 @@ public class MainActivity extends Activity {
 
             preview.addView(m2Box);
 
+        } else if (type == 7) {
+            // Weather Widget Preview
+            LinearLayout wBox = new LinearLayout(this);
+            wBox.setOrientation(LinearLayout.VERTICAL);
+            wBox.setGravity(Gravity.CENTER);
+
+            ImageView ivW = new ImageView(this);
+            int wSz = (int)(32 * density);
+            ivW.setLayoutParams(new LinearLayout.LayoutParams(wSz, wSz));
+            int wRes = getResources().getIdentifier(RavenWeatherManager.getIconName(this), "drawable", getPackageName());
+            if (wRes == 0) wRes = getResources().getIdentifier("ic_weather_sunny", "drawable", getPackageName());
+            if (wRes != 0) ivW.setImageResource(wRes);
+            wBox.addView(ivW);
+
+            TextView tvTemp = new TextView(this);
+            tvTemp.setText(RavenWeatherManager.getTemperature(this) + "°");
+            tvTemp.setTextColor(Color.WHITE);
+            tvTemp.setTextSize(22);
+            tvTemp.setTypeface(Typeface.DEFAULT_BOLD);
+            wBox.addView(tvTemp);
+
+            TextView tvCond = new TextView(this);
+            tvCond.setText(RavenWeatherManager.getCondition(this));
+            tvCond.setTextColor(Color.parseColor("#FFFF2E4D"));
+            tvCond.setTextSize(10);
+            tvCond.setTypeface(Typeface.DEFAULT_BOLD);
+            wBox.addView(tvCond);
+
+            preview.addView(wBox);
         } else {
             // Anime Mini Clock
             TextView b = new TextView(this);
@@ -2343,5 +2664,110 @@ public class MainActivity extends Activity {
                 }
             }
         });
+    }
+
+    private void showAppChooserDialog(final int slotIndex, final Runnable onSelected) {
+        PackageManager pm = getPackageManager();
+        Intent intent = new Intent(Intent.ACTION_MAIN, null);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> activities = pm.queryIntentActivities(intent, 0);
+
+        Collections.sort(activities, new Comparator<ResolveInfo>() {
+            @Override
+            public int compare(ResolveInfo a, ResolveInfo b) {
+                String lA = a.loadLabel(pm).toString();
+                String lB = b.loadLabel(pm).toString();
+                return lA.compareToIgnoreCase(lB);
+            }
+        });
+
+        final List<String> labels = new ArrayList<>();
+        final List<String> pkgs = new ArrayList<>();
+        final List<android.graphics.drawable.Drawable> icons = new ArrayList<>();
+
+        for (ResolveInfo ri : activities) {
+            labels.add(ri.loadLabel(pm).toString());
+            pkgs.add(ri.activityInfo.packageName);
+            icons.add(ri.loadIcon(pm));
+        }
+
+        BaseAdapter adapter = new BaseAdapter() {
+            @Override public int getCount() { return labels.size(); }
+            @Override public Object getItem(int position) { return labels.get(position); }
+            @Override public long getItemId(int position) { return position; }
+            @Override public View getView(int position, View convertView, ViewGroup parent) {
+                LinearLayout row = new LinearLayout(MainActivity.this);
+                row.setOrientation(LinearLayout.HORIZONTAL);
+                row.setGravity(Gravity.CENTER_VERTICAL);
+                row.setPadding((int)(14 * density), (int)(10 * density), (int)(14 * density), (int)(10 * density));
+
+                ImageView iv = new ImageView(MainActivity.this);
+                iv.setLayoutParams(new LinearLayout.LayoutParams((int)(36 * density), (int)(36 * density)));
+                iv.setImageDrawable(icons.get(position));
+                row.addView(iv);
+
+                TextView tv = new TextView(MainActivity.this);
+                tv.setText(labels.get(position));
+                tv.setTextColor(Color.WHITE);
+                tv.setTextSize(14);
+                tv.setTypeface(Typeface.DEFAULT_BOLD);
+                tv.setPadding((int)(12 * density), 0, 0, 0);
+                row.addView(tv);
+
+                return row;
+            }
+        };
+
+        ListView listView = new ListView(this);
+        listView.setBackgroundColor(Color.parseColor("#121216"));
+        listView.setAdapter(adapter);
+
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(listView);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout((int)(getResources().getDisplayMetrics().widthPixels * 0.90), (int)(getResources().getDisplayMetrics().heightPixels * 0.70));
+        }
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String chosenPkg = pkgs.get(position);
+                String chosenLabel = labels.get(position);
+                WidgetSettingsManager.setDockSlotPackage(MainActivity.this, slotIndex, chosenPkg, chosenLabel);
+                WidgetSettingsManager.updateAllWidgets(MainActivity.this);
+                Toast.makeText(MainActivity.this, "✓ Slot " + (slotIndex + 1) + " set to " + chosenLabel, Toast.LENGTH_SHORT).show();
+                if (onSelected != null) onSelected.run();
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
+    private void updateSlotIconView(int slotIndex, ImageView iv) {
+        String pkg = WidgetSettingsManager.getDockSlotPackage(this, slotIndex);
+        if (pkg != null && !pkg.isEmpty()) {
+            try {
+                PackageManager pm = getPackageManager();
+                android.graphics.drawable.Drawable d = pm.getApplicationIcon(pkg);
+                if (d != null) {
+                    iv.setImageDrawable(d);
+                    return;
+                }
+            } catch (Throwable ignored) {}
+        }
+        String[] defaultDrawables = {
+                "com_google_android_dialer",
+                "com_whatsapp",
+                "com_vivaldi_browser",
+                "com_convx_music",
+                "com_nothing_camera"
+        };
+        if (slotIndex >= 0 && slotIndex < defaultDrawables.length) {
+            int res = getResources().getIdentifier(defaultDrawables[slotIndex], "drawable", getPackageName());
+            if (res != 0) iv.setImageResource(res);
+        }
     }
 }
