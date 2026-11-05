@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_shuffle_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_widget_glass"
+    android:padding="8dp"
+    android:gravity="center">
+
+    <ImageView
+        android:id="@+id/widget_shuffle_icon"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:src="@drawable/ic_shuffle_wallpaper"
+        android:background="@drawable/bg_battery_progress"
+        android:padding="5dp"
+        android:contentDescription="Shuffle Wallpaper" />
+
+    <TextView
+        android:id="@+id/widget_shuffle_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SHUFFLE"
+        android:textColor="#FFFFFFFF"
+        android:textSize="9sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.10"
+        android:layout_marginTop="4dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="WALLPAPER"
+        android:textColor="#80FF5A73"
+        android:textSize="7sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.08" />
+
+</LinearLayout>

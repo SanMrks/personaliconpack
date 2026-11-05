@@ -101,11 +101,11 @@ public class BlackRavenWidgetProvider extends AppWidgetProvider {
                 }
             } catch (Exception ignored) {}
 
-            String batText = isCharging ? (pct + "% CHARGING") : (pct + "%");
+            String batText = isCharging ? ("⚡ " + pct + "% CHARGING") : (pct + "%");
             int idBatPct = context.getResources().getIdentifier("widget_battery_pct", "id", pkg);
             int idBatBar = context.getResources().getIdentifier("widget_battery_bar", "id", pkg);
             if (idBatPct != 0) views.setTextViewText(idBatPct, batText);
-            if (idBatBar != 0) views.setProgressBar(idBatBar, 100, pct, false);
+            if (idBatBar != 0) views.setProgressBar(idBatBar, 100, pct, isCharging);
         }
 
         // 4. Interactive PendingIntents (Clock, Calendar, Battery, Raven Shade Dashboard)

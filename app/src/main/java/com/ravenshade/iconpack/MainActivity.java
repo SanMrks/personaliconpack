@@ -18,6 +18,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.net.Uri;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -149,8 +150,6 @@ public class MainActivity extends Activity {
     private View autoWpSectionAnchor;
     private View wallpapersSectionAnchor;
     private LinearLayout galleryDrive;
-    private TextView statWallpapersCount;
-    private TextView driveSectionBadge;
     private boolean isSyncing = false;
     private float density = 1.0f;
 
@@ -160,19 +159,27 @@ public class MainActivity extends Activity {
     private ImageView ivCurrentWpThumb;
     private List<Button> intervalButtons = new ArrayList<>();
 
-    // Broadcast receiver for live wallpaper changes
-    private final BroadcastReceiver wpChangedReceiver = new BroadcastReceiver() {
+    // Live Battery Preview references
+    private TextView prevBatPct;
+    private ProgressBar prevBatBar;
+
+    // Broadcast receiver for live wallpaper and battery changes
+    private final BroadcastReceiver eventReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent != null && AutoWallpaperManager.ACTION_WALLPAPER_CHANGED.equals(intent.getAction())) {
+            if (intent == null) return;
+            String action = intent.getAction();
+            if (AutoWallpaperManager.ACTION_WALLPAPER_CHANGED.equals(action)) {
                 String title = intent.getStringExtra("title");
                 String thumb = intent.getStringExtra("thumb");
                 updateCurrentWallpaperUI(title, thumb);
+            } else if (Intent.ACTION_BATTERY_CHANGED.equals(action)) {
+                updateBatteryPreview(intent);
             }
         }
     };
 
-    // --- LIQUID GLASS UI HELPERS (APPLE iOS 26 × OBSIDIAN & CRIMSON) ---
+    // --- LIQUID GLASS UI HELPERS (OBSIDIAN & CRIMSON) ---
 
     public static GradientDrawable createLiquidScreenBackground() {
         return new GradientDrawable(
@@ -300,7 +307,7 @@ public class MainActivity extends Activity {
         root.addView(topBar);
 
         // =========================================================================
-        // 1. BRANDING PRIORITY 1 & 2: OFFICIAL RAVEN SHADE HERO CARD
+        // 1. BRANDING HERO CARD (OFFICIAL RAVEN SHADE LOGO & TYPOGRAPHY)
         // =========================================================================
         LinearLayout brandHeroCard = new LinearLayout(this);
         brandHeroCard.setOrientation(LinearLayout.VERTICAL);
@@ -359,9 +366,9 @@ public class MainActivity extends Activity {
         tvBrandName.setGravity(Gravity.CENTER);
         brandHeroCard.addView(tvBrandName);
 
-        // Subtitle: Apple Liquid Glass Suite
+        // Subtitle: Premium Liquid Glass Suite
         TextView tvBrandSub = new TextView(this);
-        tvBrandSub.setText("APPLE LIQUID GLASS • CRIMSON & OBSIDIAN SUITE");
+        tvBrandSub.setText("PREMIUM LIQUID GLASS • CRIMSON & OBSIDIAN SUITE");
         tvBrandSub.setTextColor(Color.parseColor("#B8B8B8"));
         tvBrandSub.setTextSize(10);
         tvBrandSub.setTypeface(Typeface.DEFAULT_BOLD);
@@ -370,13 +377,13 @@ public class MainActivity extends Activity {
         tvBrandSub.setPadding(0, (int)(4 * density), 0, (int)(16 * density));
         brandHeroCard.addView(tvBrandSub);
 
-        // Identity Badges (160 Icons | 3 Widgets | 100 Wallpapers)
+        // Identity Badges (160 Icons | 5 Usable Widgets | 100 Wallpapers)
         LinearLayout badgesRow = new LinearLayout(this);
         badgesRow.setOrientation(LinearLayout.HORIZONTAL);
         badgesRow.setGravity(Gravity.CENTER);
         badgesRow.addView(createGlassBadge("160 ICONS"));
         badgesRow.addView(createBadgeSpacer());
-        badgesRow.addView(createGlassBadge("3 USABLE WIDGETS"));
+        badgesRow.addView(createGlassBadge("5 USABLE WIDGETS"));
         badgesRow.addView(createBadgeSpacer());
         badgesRow.addView(createGlassBadge("100 DRIVE WALLPAPERS"));
         brandHeroCard.addView(badgesRow);
@@ -422,14 +429,14 @@ public class MainActivity extends Activity {
         root.addView(brandHeroCard);
 
         // =========================================================================
-        // 2. BRANDING PRIORITY 4: WIDGET CUSTOMIZATION STUDIO (LIVE VISUAL EDITOR)
+        // 2. WIDGET CUSTOMIZATION STUDIO (LIVE VISUAL EDITOR)
         // =========================================================================
         widgetsSectionAnchor = createSectionTitle("WIDGET CUSTOMIZATION STUDIO");
         widgetsSectionAnchor.setPadding(12, (int)(36 * density), 12, (int)(8 * density));
         root.addView(widgetsSectionAnchor);
 
         TextView widgetStudioSub = new TextView(this);
-        widgetStudioSub.setText("Real-time Apple iOS 26 Liquid Glass Editor • Changes sync to Home Screen");
+        widgetStudioSub.setText("Real-time Liquid Glass Editor • Changes sync to Home Screen");
         widgetStudioSub.setTextColor(Color.parseColor("#B8B8B8"));
         widgetStudioSub.setTextSize(12);
         widgetStudioSub.setPadding(16, 0, 16, (int)(16 * density));
@@ -504,7 +511,7 @@ public class MainActivity extends Activity {
         prevClockRow.addView(prevDateCol);
         previewCard.addView(prevClockRow);
 
-        // Preview Bottom: Battery Bar
+        // Preview Bottom: Battery Bar & Live Charging Animation
         final LinearLayout prevBatContainer = new LinearLayout(this);
         prevBatContainer.setOrientation(LinearLayout.VERTICAL);
         prevBatContainer.setVisibility(WidgetSettingsManager.getShowBattery(this) ? View.VISIBLE : View.GONE);
@@ -521,7 +528,7 @@ public class MainActivity extends Activity {
         prevBatLabel.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
         prevBatTextRow.addView(prevBatLabel);
 
-        TextView prevBatPct = new TextView(this);
+        prevBatPct = new TextView(this);
         prevBatPct.setText("85%");
         prevBatPct.setTextColor(Color.parseColor("#DC143C"));
         prevBatPct.setTextSize(11);
@@ -529,12 +536,14 @@ public class MainActivity extends Activity {
         prevBatTextRow.addView(prevBatPct);
         prevBatContainer.addView(prevBatTextRow);
 
-        ProgressBar prevBatBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        prevBatBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
         prevBatBar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int)(6 * density)));
         int trackRes = getResources().getIdentifier("bg_battery_track", "drawable", getPackageName());
         int progRes = getResources().getIdentifier("bg_battery_progress", "drawable", getPackageName());
+        int animRes = getResources().getIdentifier("bg_battery_charging_anim", "drawable", getPackageName());
         if (trackRes != 0) prevBatBar.setBackgroundResource(trackRes);
         if (progRes != 0) prevBatBar.setProgressDrawable(getResources().getDrawable(progRes));
+        if (animRes != 0) prevBatBar.setIndeterminateDrawable(getResources().getDrawable(animRes));
         prevBatBar.setProgress(85);
         prevBatContainer.addView(prevBatBar);
         previewCard.addView(prevBatContainer);
@@ -661,7 +670,9 @@ public class MainActivity extends Activity {
         formCard.addView(formBtnRow);
         root.addView(formCard);
 
-        // Horizontal Row of Usable Widgets (+ Add to Home Screen)
+        // =========================================================================
+        // USABLE WIDGETS CAROUSEL (5 USABLE WIDGETS + 1-TAP PINNING)
+        // =========================================================================
         HorizontalScrollView hsvWidgets = new HorizontalScrollView(this);
         hsvWidgets.setHorizontalScrollBarEnabled(false);
         hsvWidgets.setPadding(0, (int)(18 * density), 0, (int)(18 * density));
@@ -669,13 +680,31 @@ public class MainActivity extends Activity {
         LinearLayout widgetsRow = new LinearLayout(this);
         widgetsRow.setOrientation(LinearLayout.HORIZONTAL);
 
+        // 1. Black Raven Clock (4x2)
         widgetsRow.addView(createWidgetPreviewCard(
             "Black Raven Clock (4x2)",
-            "Digital Clock • Date • Live Battery Bar",
+            "Digital Clock • Date • Animated Battery",
             BlackRavenWidgetProvider.class,
             1
         ));
 
+        // 2. Raven Music Player (4x2)
+        widgetsRow.addView(createWidgetPreviewCard(
+            "Raven Music Player (4x2)",
+            "Now Playing • Liquid Audio Controls",
+            MusicWidgetProvider.class,
+            4
+        ));
+
+        // 3. Shuffle Wallpaper (1x1)
+        widgetsRow.addView(createWidgetPreviewCard(
+            "Shuffle Wallpaper (1x1)",
+            "1-Tap Random Google Drive Wallpaper",
+            WallpaperShuffleWidgetProvider.class,
+            5
+        ));
+
+        // 4. Quick App Dock (4x1)
         widgetsRow.addView(createWidgetPreviewCard(
             "Quick App Dock (4x1)",
             "Obsidian Dock • 5 Quick Launch Shortcuts",
@@ -683,6 +712,7 @@ public class MainActivity extends Activity {
             2
         ));
 
+        // 5. Anime Mini Clock (2x2)
         widgetsRow.addView(createWidgetPreviewCard(
             "Anime Mini Clock (2x2)",
             "Compact Obsidian & Crimson Square Clock",
@@ -694,7 +724,7 @@ public class MainActivity extends Activity {
         root.addView(hsvWidgets);
 
         // =========================================================================
-        // 3. BRANDING PRIORITY 5: AUTOMATIC WALLPAPER CHANGER (GOOGLE DRIVE)
+        // 3. AUTOMATIC WALLPAPER CHANGER (GOOGLE DRIVE)
         // =========================================================================
         autoWpSectionAnchor = createSectionTitle("AUTOMATIC WALLPAPER CHANGER");
         autoWpSectionAnchor.setPadding(12, (int)(36 * density), 12, (int)(8 * density));
@@ -969,21 +999,36 @@ public class MainActivity extends Activity {
 
         setContentView(mainScrollView);
 
-        // Register wallpaper receiver
-        IntentFilter filter = new IntentFilter(AutoWallpaperManager.ACTION_WALLPAPER_CHANGED);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(wpChangedReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            registerReceiver(wpChangedReceiver, filter);
-        }
+        // Register wallpaper & battery receivers
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(AutoWallpaperManager.ACTION_WALLPAPER_CHANGED);
+        filter.addAction(Intent.ACTION_BATTERY_CHANGED);
+        registerReceiver(eventReceiver, filter);
 
         syncLiveDriveWallpapers(false);
+    }
+
+    private void updateBatteryPreview(Intent batteryStatus) {
+        if (batteryStatus == null || prevBatPct == null || prevBatBar == null) return;
+        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        int pct = 85;
+        if (level >= 0 && scale > 0) {
+            pct = (int) ((level / (float) scale) * 100);
+        }
+        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = (status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                              status == BatteryManager.BATTERY_STATUS_FULL);
+
+        prevBatPct.setText(isCharging ? ("⚡ " + pct + "% CHARGING") : (pct + "%"));
+        prevBatBar.setProgress(pct);
+        prevBatBar.setIndeterminate(isCharging);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try { unregisterReceiver(wpChangedReceiver); } catch (Exception ignored) {}
+        try { unregisterReceiver(eventReceiver); } catch (Exception ignored) {}
     }
 
     @Override
@@ -1249,9 +1294,9 @@ public class MainActivity extends Activity {
 
         Date now = new Date();
         SimpleDateFormat timeFmt = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        SimpleDateFormat dateFmt = new SimpleDateFormat("EEEE | d MMM", Locale.getDefault());
 
         if (type == 1) {
+            // Black Raven Clock
             LinearLayout head = new LinearLayout(this);
             head.setOrientation(LinearLayout.HORIZONTAL);
             TextView t = new TextView(this);
@@ -1276,6 +1321,7 @@ public class MainActivity extends Activity {
             clk.setTypeface(Typeface.DEFAULT_BOLD);
             preview.addView(clk);
         } else if (type == 2) {
+            // Quick App Dock
             LinearLayout dock = new LinearLayout(this);
             dock.setOrientation(LinearLayout.HORIZONTAL);
             dock.setGravity(Gravity.CENTER);
@@ -1293,7 +1339,76 @@ public class MainActivity extends Activity {
                 }
             }
             preview.addView(dock);
+        } else if (type == 4) {
+            // Raven Music Player
+            LinearLayout mRow = new LinearLayout(this);
+            mRow.setOrientation(LinearLayout.HORIZONTAL);
+            mRow.setGravity(Gravity.CENTER_VERTICAL);
+
+            ImageView ivArt = new ImageView(this);
+            int artSz = (int)(36 * density);
+            ivArt.setLayoutParams(new LinearLayout.LayoutParams(artSz, artSz));
+            int musicRes = getResources().getIdentifier("com_convx_music", "drawable", getPackageName());
+            if (musicRes != 0) ivArt.setImageResource(musicRes);
+            mRow.addView(ivArt);
+
+            LinearLayout mTextCol = new LinearLayout(this);
+            mTextCol.setOrientation(LinearLayout.VERTICAL);
+            mTextCol.setPadding((int)(8 * density), 0, (int)(8 * density), 0);
+            mTextCol.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
+
+            TextView mTitle = new TextView(this);
+            mTitle.setText("Raven Waves");
+            mTitle.setTextColor(Color.WHITE);
+            mTitle.setTextSize(12);
+            mTitle.setTypeface(Typeface.DEFAULT_BOLD);
+            mTextCol.addView(mTitle);
+
+            TextView mArtist = new TextView(this);
+            mArtist.setText("Obsidian Crimson");
+            mArtist.setTextColor(Color.parseColor("#B8B8B8"));
+            mArtist.setTextSize(10);
+            mTextCol.addView(mArtist);
+            mRow.addView(mTextCol);
+
+            // Miniature Play Circle
+            ImageView btnP = new ImageView(this);
+            btnP.setLayoutParams(new LinearLayout.LayoutParams((int)(28 * density), (int)(28 * density)));
+            int icPlay = getResources().getIdentifier("ic_play_arrow", "drawable", getPackageName());
+            if (icPlay != 0) btnP.setImageResource(icPlay);
+            int bgProg = getResources().getIdentifier("bg_battery_progress", "drawable", getPackageName());
+            if (bgProg != 0) btnP.setBackgroundResource(bgProg);
+            btnP.setPadding(4, 4, 4, 4);
+            mRow.addView(btnP);
+            preview.addView(mRow);
+
+        } else if (type == 5) {
+            // Shuffle Wallpaper (1x1)
+            LinearLayout sBox = new LinearLayout(this);
+            sBox.setOrientation(LinearLayout.VERTICAL);
+            sBox.setGravity(Gravity.CENTER);
+
+            ImageView ivShuf = new ImageView(this);
+            ivShuf.setLayoutParams(new LinearLayout.LayoutParams((int)(28 * density), (int)(28 * density)));
+            int icShuf = getResources().getIdentifier("ic_shuffle_wallpaper", "drawable", getPackageName());
+            if (icShuf != 0) ivShuf.setImageResource(icShuf);
+            int bgProg = getResources().getIdentifier("bg_battery_progress", "drawable", getPackageName());
+            if (bgProg != 0) ivShuf.setBackgroundResource(bgProg);
+            ivShuf.setPadding(5, 5, 5, 5);
+            sBox.addView(ivShuf);
+
+            TextView sTxt = new TextView(this);
+            sTxt.setText("SHUFFLE");
+            sTxt.setTextColor(Color.WHITE);
+            sTxt.setTextSize(10);
+            sTxt.setTypeface(Typeface.DEFAULT_BOLD);
+            sTxt.setLetterSpacing(0.08f);
+            sTxt.setPadding(0, 4, 0, 0);
+            sBox.addView(sTxt);
+            preview.addView(sBox);
+
         } else {
+            // Anime Mini Clock
             TextView b = new TextView(this);
             b.setText(WidgetSettingsManager.getTitle(this));
             b.setTextColor(Color.parseColor("#DC143C"));
@@ -1466,7 +1581,7 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_SUBJECT, "Raven Shade Customization App");
-        intent.putExtra(Intent.EXTRA_TEXT, "Check out Raven Shade - Apple Liquid Glass & Crimson customization app for Android!");
+        intent.putExtra(Intent.EXTRA_TEXT, "Check out Raven Shade - Liquid Glass & Crimson customization app for Android!");
         startActivity(Intent.createChooser(intent, "Share Raven Shade via"));
     }
 

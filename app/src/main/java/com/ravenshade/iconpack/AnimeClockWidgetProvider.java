@@ -72,6 +72,7 @@ public class AnimeClockWidgetProvider extends AppWidgetProvider {
             if (showBattery) {
                 views.setViewVisibility(idBattery, View.VISIBLE);
                 int pct = 85;
+                boolean isCharging = false;
                 try {
                     IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
                     Intent batteryStatus = context.registerReceiver(null, ifilter);
@@ -81,9 +82,12 @@ public class AnimeClockWidgetProvider extends AppWidgetProvider {
                         if (level >= 0 && scale > 0) {
                             pct = (int) ((level / (float) scale) * 100);
                         }
+                        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+                        isCharging = (status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                                      status == BatteryManager.BATTERY_STATUS_FULL);
                     }
                 } catch (Exception ignored) {}
-                views.setTextViewText(idBattery, pct + "% BATTERY");
+                views.setTextViewText(idBattery, isCharging ? ("⚡ " + pct + "% CHARGING") : (pct + "% BATTERY"));
             } else {
                 views.setViewVisibility(idBattery, View.GONE);
             }

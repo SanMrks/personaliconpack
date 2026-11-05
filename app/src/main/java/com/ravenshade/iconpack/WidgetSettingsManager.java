@@ -109,6 +109,20 @@ public class WidgetSettingsManager {
                 QuickDockWidgetProvider.updateAppWidget(context, manager, id);
             }
 
+            // 4. Music Widget
+            ComponentName musicComp = new ComponentName(context, MusicWidgetProvider.class);
+            int[] musicIds = manager.getAppWidgetIds(musicComp);
+            for (int id : musicIds) {
+                MusicWidgetProvider.updateAppWidget(context, manager, id);
+            }
+
+            // 5. Wallpaper Shuffle Widget
+            ComponentName shuffleComp = new ComponentName(context, WallpaperShuffleWidgetProvider.class);
+            int[] shuffleIds = manager.getAppWidgetIds(shuffleComp);
+            for (int id : shuffleIds) {
+                WallpaperShuffleWidgetProvider.updateAppWidget(context, manager, id);
+            }
+
             // Send standard broadcast update
             Intent updateIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
             updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ravenIds);

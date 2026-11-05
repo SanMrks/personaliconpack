@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ravenshade.iconpack"
-    android:versionCode="29"
-    android:versionName="5.0">
+    android:versionCode="30"
+    android:versionName="5.1">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -164,6 +164,36 @@
                 <action android:name="com.ravenshade.iconpack.ACTION_AUTO_WALLPAPER_TRIGGER" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
+        </receiver>
+        <!-- 5. Ravenshade Music Widget (4x2) -->
+        <receiver
+            android:name="com.ravenshade.iconpack.MusicWidgetProvider"
+            android:exported="true"
+            android:label="Raven Music">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.ravenshade.iconpack.ACTION_MUSIC_PLAY_PAUSE" />
+                <action android:name="com.ravenshade.iconpack.ACTION_MUSIC_PREV" />
+                <action android:name="com.ravenshade.iconpack.ACTION_MUSIC_NEXT" />
+                <action android:name="com.ravenshade.iconpack.ACTION_MUSIC_OPEN" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_music_info" />
+        </receiver>
+
+        <!-- 6. Ravenshade Wallpaper Shuffle Widget (1x1) -->
+        <receiver
+            android:name="com.ravenshade.iconpack.WallpaperShuffleWidgetProvider"
+            android:exported="true"
+            android:label="Shuffle Wallpaper">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.ravenshade.iconpack.ACTION_SHUFFLE_WALLPAPER_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_wallpaper_shuffle_info" />
         </receiver>
     </application>
 
