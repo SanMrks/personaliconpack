@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- YouTube -->
+    <item component="ComponentInfo{com.google.android.youtube/com.google.android.youtube.HomeActivity}" drawable="youtube" />
+    <item component="ComponentInfo{com.google.android.youtube/com.google.android.youtube.LaunchApplicationActivity}" drawable="youtube" />
+    <item component="ComponentInfo{com.google.android.youtube/com.google.android.youtube.app.honeycomb.Shell$HomeActivity}" drawable="youtube" />
+
+    <!-- WhatsApp -->
+    <item component="ComponentInfo{com.whatsapp/com.whatsapp.HomeActivity}" drawable="whatsapp" />
+    <item component="ComponentInfo{com.whatsapp/com.whatsapp.Main}" drawable="whatsapp" />
+
+    <!-- X (Twitter) -->
+    <item component="ComponentInfo{com.twitter.android/com.twitter.android.StartActivity}" drawable="x" />
+    <item component="ComponentInfo{com.twitter.android/com.twitter.android.MainActivity}" drawable="x" />
+
+    <!-- Mobile Legends: Bang Bang -->
+    <item component="ComponentInfo{com.mobile.legends/com.mobile.legends.MainActivity}" drawable="mobile_legends" />
+    <item component="ComponentInfo{com.mobile.legends/com.google.android.gms.games.NativeMainActivity}" drawable="mobile_legends" />
+    <item component="ComponentInfo{com.mobile.legends/com.mobile.legends.SplashActivity}" drawable="mobile_legends" />
+</resources>
