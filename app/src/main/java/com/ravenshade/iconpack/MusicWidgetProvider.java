@@ -6,10 +6,9 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Build;
-import android.os.SystemClock;
-import android.view.KeyEvent;
 import android.widget.RemoteViews;
 
 public class MusicWidgetProvider extends AppWidgetProvider {
@@ -32,16 +31,14 @@ public class MusicWidgetProvider extends AppWidgetProvider {
         if (intent == null) return;
         String action = intent.getAction();
 
-        AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-
         if (ACTION_MUSIC_PLAY_PAUSE.equals(action)) {
-            sendMediaKey(am, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+            RavenMusicManager.sendPlayPause(context);
             updateAll(context);
         } else if (ACTION_MUSIC_PREV.equals(action)) {
-            sendMediaKey(am, KeyEvent.KEYCODE_MEDIA_PREVIOUS);
+            RavenMusicManager.sendPrevious(context);
             updateAll(context);
         } else if (ACTION_MUSIC_NEXT.equals(action)) {
-            sendMediaKey(am, KeyEvent.KEYCODE_MEDIA_NEXT);
+            RavenMusicManager.sendNext(context);
             updateAll(context);
         } else if (ACTION_MUSIC_OPEN.equals(action)) {
             launchMusicApp(context);
@@ -50,17 +47,15 @@ public class MusicWidgetProvider extends AppWidgetProvider {
         }
     }
 
-    private static void sendMediaKey(AudioManager am, int keyCode) {
-        if (am == null) return;
-        long eventTime = SystemClock.uptimeMillis();
-        KeyEvent down = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN, keyCode, 0);
-        KeyEvent up = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_UP, keyCode, 0);
-        am.dispatchMediaKeyEvent(down);
-        am.dispatchMediaKeyEvent(up);
-    }
-
     private static void launchMusicApp(Context context) {
-        Intent intent = context.getPackageManager().getLaunchIntentForPackage("com.convx.music");
+        String activePkg = RavenMusicManager.getPlayingPackage(context);
+        Intent intent = null;
+        if (activePkg != null && !activePkg.isEmpty()) {
+            intent = context.getPackageManager().getLaunchIntentForPackage(activePkg);
+        }
+        if (intent == null) {
+            intent = context.getPackageManager().getLaunchIntentForPackage("com.convx.music");
+        }
         if (intent == null) {
             intent = context.getPackageManager().getLaunchIntentForPackage("com.spotify.music");
         }
@@ -69,8 +64,8 @@ public class MusicWidgetProvider extends AppWidgetProvider {
         }
         if (intent == null) {
             intent = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_APP_MUSIC);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
             context.startActivity(intent);
         } catch (Exception ignored) {}
@@ -93,23 +88,44 @@ public class MusicWidgetProvider extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(pkg, layoutId);
 
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        boolean isMusicActive = (am != null && am.isMusicActive());
+        boolean amActive = (am != null && am.isMusicActive());
+        boolean isPlaying = RavenMusicManager.isPlaying(context) || amActive;
+
+        String songTitle = RavenMusicManager.getTitle(context);
+        String songArtist = RavenMusicManager.getArtist(context);
+        String brand = WidgetSettingsManager.getMusicBrand(context);
 
         int idPlayBtn = context.getResources().getIdentifier("widget_music_btn_play", "id", pkg);
-        int idState = context.getResources().getIdentifier("widget_music_state", "id", pkg);
-        int idTrackBox = context.getResources().getIdentifier("widget_music_track_box", "id", pkg);
         int idPrevBtn = context.getResources().getIdentifier("widget_music_btn_prev", "id", pkg);
         int idNextBtn = context.getResources().getIdentifier("widget_music_btn_next", "id", pkg);
+        int idTitle = context.getResources().getIdentifier("widget_music_title", "id", pkg);
+        int idArtist = context.getResources().getIdentifier("widget_music_artist", "id", pkg);
+        int idBrand = context.getResources().getIdentifier("widget_music_brand", "id", pkg);
+        int idState = context.getResources().getIdentifier("widget_music_state", "id", pkg);
+        int idArt = context.getResources().getIdentifier("widget_music_art", "id", pkg);
+        int idRoot = context.getResources().getIdentifier("widget_music_root", "id", pkg);
+
+        if (idTitle != 0) views.setTextViewText(idTitle, songTitle);
+        if (idArtist != 0) views.setTextViewText(idArtist, songArtist);
+        if (idBrand != 0) views.setTextViewText(idBrand, brand);
+        if (idState != 0) views.setTextViewText(idState, isPlaying ? "NOW PLAYING" : "PAUSED");
 
         // Icon for Play / Pause
         int icPlay = context.getResources().getIdentifier("ic_play_arrow", "drawable", pkg);
         int icPause = context.getResources().getIdentifier("ic_pause", "drawable", pkg);
-
         if (idPlayBtn != 0) {
-            views.setImageViewResource(idPlayBtn, isMusicActive ? icPause : icPlay);
+            views.setImageViewResource(idPlayBtn, isPlaying ? icPause : icPlay);
         }
-        if (idState != 0) {
-            views.setTextViewText(idState, isMusicActive ? "PLAYING" : "PAUSED");
+
+        // Album Art
+        Bitmap art = RavenMusicManager.getAlbumArt(context);
+        if (idArt != 0) {
+            if (art != null && !art.isRecycled()) {
+                views.setImageViewBitmap(idArt, art);
+            } else {
+                int defaultArt = context.getResources().getIdentifier("ic_music_note", "drawable", pkg);
+                if (defaultArt != 0) views.setImageViewResource(idArt, defaultArt);
+            }
         }
 
         // Attach PendingIntents
@@ -134,10 +150,10 @@ public class MusicWidgetProvider extends AppWidgetProvider {
             views.setOnClickPendingIntent(idNextBtn, PendingIntent.getBroadcast(context, 403, nextIntent, flags));
         }
 
-        if (idTrackBox != 0) {
+        if (idArt != 0) {
             Intent openIntent = new Intent(context, MusicWidgetProvider.class);
             openIntent.setAction(ACTION_MUSIC_OPEN);
-            views.setOnClickPendingIntent(idTrackBox, PendingIntent.getBroadcast(context, 404, openIntent, flags));
+            views.setOnClickPendingIntent(idArt, PendingIntent.getBroadcast(context, 404, openIntent, flags));
         }
 
         appWidgetManager.updateAppWidget(appWidgetId, views);

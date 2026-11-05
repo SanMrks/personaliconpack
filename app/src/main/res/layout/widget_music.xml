@@ -3,146 +3,125 @@
     android:id="@+id/widget_music_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:background="@drawable/bg_widget_glass"
-    android:padding="16dp"
+    android:padding="14dp"
     android:gravity="center_vertical">
 
-    <!-- Header: Title & Liquid Sound Badge -->
+    <!-- Left: Album Art Squircle -->
+    <ImageView
+        android:id="@+id/widget_music_art"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_music_note"
+        android:background="@drawable/bg_liquid_glass_capsule"
+        android:padding="4dp"
+        android:contentDescription="Album Art" />
+
+    <!-- Right: Track Details & Interactive Controls -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginStart="14dp"
         android:gravity="center_vertical">
 
-        <ImageView
-            android:layout_width="14dp"
-            android:layout_height="14dp"
-            android:src="@drawable/ic_music_note"
-            android:layout_marginEnd="6dp" />
-
-        <TextView
-            android:id="@+id/widget_music_brand"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="RAVEN AUDIO"
-            android:textColor="#FFDC143C"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.10" />
-
-        <TextView
-            android:id="@+id/widget_music_state"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="LIQUID SOUND"
-            android:textColor="#CCFFFFFF"
-            android:textSize="10sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <!-- Center: Album Art & Track Details -->
-    <LinearLayout
-        android:id="@+id/widget_music_track_box"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginTop="8dp">
-
-        <!-- Album Art Squircle -->
-        <ImageView
-            android:id="@+id/widget_music_art"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/com_convx_music"
-            android:background="@drawable/bg_liquid_glass_capsule"
-            android:padding="2dp" />
-
+        <!-- Top Row: Brand & Status -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="12dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
             <TextView
-                android:id="@+id/widget_music_title"
-                android:layout_width="wrap_content"
+                android:id="@+id/widget_music_brand"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Raven Waves"
-                android:textColor="#FFFFFFFF"
-                android:textSize="14sp"
+                android:layout_weight="1"
+                android:text="RAVEN AUDIO"
+                android:textColor="#FFDC143C"
+                android:textSize="10sp"
                 android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end" />
+                android:letterSpacing="0.10" />
 
             <TextView
-                android:id="@+id/widget_music_artist"
+                android:id="@+id/widget_music_state"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Obsidian Crimson Session"
-                android:textColor="#B8B8B8"
-                android:textSize="11sp"
-                android:layout_marginTop="2dp"
-                android:maxLines="1"
-                android:ellipsize="end" />
-
-            <!-- Liquid Track Progress Bar -->
-            <ProgressBar
-                android:id="@+id/widget_music_progress"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="3dp"
-                android:layout_marginTop="6dp"
-                android:max="100"
-                android:progress="60"
-                android:progressDrawable="@drawable/bg_battery_progress"
-                android:background="@drawable/bg_battery_track" />
+                android:text="NOW PLAYING"
+                android:textColor="#80FFFFFF"
+                android:textSize="8sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08" />
         </LinearLayout>
-    </LinearLayout>
 
-    <!-- Bottom: Interactive Playback Controls (Prev, Play/Pause, Next) -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="10dp">
+        <!-- Song Title -->
+        <TextView
+            android:id="@+id/widget_music_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Raven Waves"
+            android:textColor="#FFFFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_marginTop="2dp" />
 
-        <!-- Previous Button -->
-        <ImageView
-            android:id="@+id/widget_music_btn_prev"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:src="@drawable/ic_skip_previous"
-            android:background="@drawable/bg_liquid_glass_capsule"
-            android:padding="8dp"
-            android:contentDescription="Previous" />
+        <!-- Artist -->
+        <TextView
+            android:id="@+id/widget_music_artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Obsidian Crimson Session"
+            android:textColor="#B8B8B8"
+            android:textSize="11sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_marginTop="1dp" />
 
-        <!-- Play / Pause Button (Glowing Crimson Pill) -->
-        <ImageView
-            android:id="@+id/widget_music_btn_play"
-            android:layout_width="46dp"
-            android:layout_height="46dp"
-            android:src="@drawable/ic_play_arrow"
-            android:background="@drawable/bg_battery_progress"
-            android:padding="10dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:contentDescription="Play / Pause" />
+        <!-- Controls Row (Spacious & Clean) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="6dp">
 
-        <!-- Next Button -->
-        <ImageView
-            android:id="@+id/widget_music_btn_next"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:src="@drawable/ic_skip_next"
-            android:background="@drawable/bg_liquid_glass_capsule"
-            android:padding="8dp"
-            android:contentDescription="Next" />
+            <!-- Previous Button -->
+            <ImageView
+                android:id="@+id/widget_music_btn_prev"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_skip_previous"
+                android:background="@drawable/bg_liquid_glass_capsule"
+                android:padding="7dp"
+                android:contentDescription="Previous" />
+
+            <!-- Play / Pause Button -->
+            <ImageView
+                android:id="@+id/widget_music_btn_play"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_play_arrow"
+                android:background="@drawable/bg_battery_progress"
+                android:padding="9dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="Play / Pause" />
+
+            <!-- Next Button -->
+            <ImageView
+                android:id="@+id/widget_music_btn_next"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_skip_next"
+                android:background="@drawable/bg_liquid_glass_capsule"
+                android:padding="7dp"
+                android:contentDescription="Next" />
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

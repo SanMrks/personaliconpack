@@ -50,6 +50,14 @@ public class WallpaperShuffleWidgetProvider extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(pkg, layoutId);
 
         int idRoot = context.getResources().getIdentifier("widget_shuffle_root", "id", pkg);
+        int idTitle = context.getResources().getIdentifier("widget_shuffle_title", "id", pkg);
+        int idSub = context.getResources().getIdentifier("widget_shuffle_subtitle", "id", pkg);
+        int idTag = context.getResources().getIdentifier("widget_shuffle_tag", "id", pkg);
+
+        if (idTitle != 0) views.setTextViewText(idTitle, WidgetSettingsManager.getShuffleTitle(context));
+        if (idSub != 0) views.setTextViewText(idSub, WidgetSettingsManager.getShuffleSubtitle(context));
+        if (idTag != 0) views.setTextViewText(idTag, WidgetSettingsManager.getShuffleTag(context));
+
         if (idRoot != 0) {
             Intent intent = new Intent(context, WallpaperShuffleWidgetProvider.class);
             intent.setAction(ACTION_SHUFFLE);

@@ -50,7 +50,7 @@ public class AnimeClockWidgetProvider extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(pkg, layoutId);
 
         // 1. User Editable Settings
-        String customTitle = WidgetSettingsManager.getTitle(context);
+        String customTitle = WidgetSettingsManager.getAnimeTitle(context);
         boolean showBattery = WidgetSettingsManager.getShowBattery(context);
 
         int idBrand = context.getResources().getIdentifier("widget_mini_brand", "id", pkg);

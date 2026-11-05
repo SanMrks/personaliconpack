@@ -18,6 +18,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.net.Uri;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -146,6 +148,7 @@ public class MainActivity extends Activity {
 
     private final List<CloudWallpaper> driveItems = new ArrayList<>();
     private ScrollView mainScrollView;
+    private View availableWidgetsAnchor;
     private View widgetsSectionAnchor;
     private View autoWpSectionAnchor;
     private View wallpapersSectionAnchor;
@@ -202,6 +205,23 @@ public class MainActivity extends Activity {
         glass.setCornerRadius(cornerRadius);
         glass.setStroke(3, Color.parseColor("#4DFFFFFF")); // Polished specular glass bevel rim
         return glass;
+    }
+
+    public static GradientDrawable createLiquidRedGradient(float radius) {
+        GradientDrawable gd = new GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[] { Color.parseColor("#FFDC143C"), Color.parseColor("#808B0000") }
+        );
+        gd.setCornerRadius(radius);
+        return gd;
+    }
+
+    public static GradientDrawable createLiquidGlassCapsule() {
+        GradientDrawable gd = new GradientDrawable();
+        gd.setColor(Color.parseColor("#15FFFFFF"));
+        gd.setStroke(1, Color.parseColor("#38FFFFFF"));
+        gd.setCornerRadius(16);
+        return gd;
     }
 
     public static GradientDrawable createGlassPill(String bgColor, String strokeColor, float radius) {
@@ -429,253 +449,73 @@ public class MainActivity extends Activity {
         root.addView(brandHeroCard);
 
         // =========================================================================
-        // 2. WIDGET CUSTOMIZATION STUDIO (LIVE VISUAL EDITOR)
+        // 2. AVAILABLE WIDGETS SUITE (SEPARATE DEDICATED HEADING)
         // =========================================================================
-        widgetsSectionAnchor = createSectionTitle("WIDGET CUSTOMIZATION STUDIO");
-        widgetsSectionAnchor.setPadding(12, (int)(36 * density), 12, (int)(8 * density));
-        root.addView(widgetsSectionAnchor);
+        availableWidgetsAnchor = createSectionTitle("AVAILABLE WIDGETS");
+        availableWidgetsAnchor.setPadding(12, (int)(36 * density), 12, (int)(8 * density));
+        root.addView(availableWidgetsAnchor);
 
-        TextView widgetStudioSub = new TextView(this);
-        widgetStudioSub.setText("Real-time Liquid Glass Editor • Changes sync to Home Screen");
-        widgetStudioSub.setTextColor(Color.parseColor("#B8B8B8"));
-        widgetStudioSub.setTextSize(12);
-        widgetStudioSub.setPadding(16, 0, 16, (int)(16 * density));
-        root.addView(widgetStudioSub);
+        TextView availableWidgetsSub = new TextView(this);
+        availableWidgetsSub.setText("6 Usable Liquid Glass Widgets • 1-Tap Add to Home Screen");
+        availableWidgetsSub.setTextColor(Color.parseColor("#B8B8B8"));
+        availableWidgetsSub.setTextSize(12);
+        availableWidgetsSub.setPadding(16, 0, 16, (int)(14 * density));
+        root.addView(availableWidgetsSub);
 
-        // Live Interactive Liquid Glass Preview Card
-        final LinearLayout previewCard = new LinearLayout(this);
-        previewCard.setOrientation(LinearLayout.VERTICAL);
-        previewCard.setPadding((int)(20 * density), (int)(18 * density), (int)(20 * density), (int)(18 * density));
-        previewCard.setBackground(createLiquidGlassCard(28));
-        previewCard.setElevation(8);
+        // Music Live Sync Status Banner (convx, Spotify, YouTube Music, etc.)
+        if (!isNotificationListenerEnabled()) {
+            LinearLayout musicSyncCard = new LinearLayout(this);
+            musicSyncCard.setOrientation(LinearLayout.HORIZONTAL);
+            musicSyncCard.setGravity(Gravity.CENTER_VERTICAL);
+            musicSyncCard.setBackground(createLiquidGlassCard(24));
+            musicSyncCard.setPadding((int)(16 * density), (int)(12 * density), (int)(16 * density), (int)(12 * density));
+            LinearLayout.LayoutParams mscLp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            mscLp.setMargins(0, 0, 0, (int)(12 * density));
+            musicSyncCard.setLayoutParams(mscLp);
 
-        // Preview Header: Title & Subtitle
-        LinearLayout prevHeader = new LinearLayout(this);
-        prevHeader.setOrientation(LinearLayout.HORIZONTAL);
-        prevHeader.setGravity(Gravity.CENTER_VERTICAL);
+            LinearLayout mscTextCol = new LinearLayout(this);
+            mscTextCol.setOrientation(LinearLayout.VERTICAL);
+            mscTextCol.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
 
-        final TextView prevTitle = new TextView(this);
-        prevTitle.setText(WidgetSettingsManager.getTitle(this));
-        prevTitle.setTextColor(Color.parseColor("#DC143C")); // Crimson
-        prevTitle.setTextSize(14);
-        prevTitle.setTypeface(Typeface.DEFAULT_BOLD);
-        prevTitle.setLetterSpacing(0.10f);
-        prevTitle.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
-        prevHeader.addView(prevTitle);
+            TextView tvMscTitle = new TextView(this);
+            tvMscTitle.setText("🎵 LIVE MUSIC SYNC");
+            tvMscTitle.setTextColor(Color.parseColor("#FFDC143C"));
+            tvMscTitle.setTextSize(11);
+            tvMscTitle.setTypeface(Typeface.DEFAULT_BOLD);
+            tvMscTitle.setLetterSpacing(0.08f);
+            mscTextCol.addView(tvMscTitle);
 
-        final TextView prevSub = new TextView(this);
-        prevSub.setText(WidgetSettingsManager.getSubtitle(this));
-        prevSub.setTextColor(Color.parseColor("#CCFFFFFF"));
-        prevSub.setTextSize(11);
-        prevSub.setTypeface(Typeface.DEFAULT_BOLD);
-        prevHeader.addView(prevSub);
-        previewCard.addView(prevHeader);
+            TextView tvMscDesc = new TextView(this);
+            tvMscDesc.setText("Enable Notification Access so widgets can read live song title, artist & album art from convx, Spotify, etc.");
+            tvMscDesc.setTextColor(Color.parseColor("#B8B8B8"));
+            tvMscDesc.setTextSize(10);
+            tvMscDesc.setPadding(0, 2, 0, 0);
+            mscTextCol.addView(tvMscDesc);
+            musicSyncCard.addView(mscTextCol);
 
-        // Preview Center: Real-time Clock & Date
-        LinearLayout prevClockRow = new LinearLayout(this);
-        prevClockRow.setOrientation(LinearLayout.HORIZONTAL);
-        prevClockRow.setGravity(Gravity.CENTER_VERTICAL);
-        prevClockRow.setPadding(0, (int)(10 * density), 0, (int)(10 * density));
+            Button btnEnableMusic = createLiquidRedButton(this, "Enable");
+            btnEnableMusic.setTextSize(11);
+            btnEnableMusic.setLayoutParams(new LinearLayout.LayoutParams((int)(80 * density), (int)(38 * density)));
+            btnEnableMusic.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    try {
+                        Intent intent = new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "Open Settings > Apps > Special App Access > Notification Access", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+            musicSyncCard.addView(btnEnableMusic);
+            root.addView(musicSyncCard);
+        }
 
-        Date now = new Date();
-        SimpleDateFormat timeFmt = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        SimpleDateFormat dateFmt = new SimpleDateFormat("EEEE | d MMM", Locale.getDefault());
-
-        TextView prevClock = new TextView(this);
-        prevClock.setText(timeFmt.format(now));
-        prevClock.setTextColor(Color.WHITE);
-        prevClock.setTextSize(34);
-        prevClock.setTypeface(Typeface.DEFAULT_BOLD);
-        prevClockRow.addView(prevClock);
-
-        LinearLayout prevDateCol = new LinearLayout(this);
-        prevDateCol.setOrientation(LinearLayout.VERTICAL);
-        prevDateCol.setPadding((int)(14 * density), 0, 0, 0);
-
-        TextView prevDate = new TextView(this);
-        prevDate.setText(dateFmt.format(now));
-        prevDate.setTextColor(Color.parseColor("#E6FFFFFF"));
-        prevDate.setTextSize(13);
-        prevDate.setTypeface(Typeface.DEFAULT_BOLD);
-        prevDateCol.addView(prevDate);
-
-        final TextView prevTag = new TextView(this);
-        prevTag.setText(WidgetSettingsManager.getTag(this));
-        prevTag.setTextColor(Color.parseColor("#80FF5A73"));
-        prevTag.setTextSize(9);
-        prevTag.setLetterSpacing(0.06f);
-        prevTag.setPadding(0, (int)(2 * density), 0, 0);
-        prevTag.setVisibility(WidgetSettingsManager.getShowTag(this) ? View.VISIBLE : View.GONE);
-        prevDateCol.addView(prevTag);
-
-        prevClockRow.addView(prevDateCol);
-        previewCard.addView(prevClockRow);
-
-        // Preview Bottom: Battery Bar & Live Charging Animation
-        final LinearLayout prevBatContainer = new LinearLayout(this);
-        prevBatContainer.setOrientation(LinearLayout.VERTICAL);
-        prevBatContainer.setVisibility(WidgetSettingsManager.getShowBattery(this) ? View.VISIBLE : View.GONE);
-
-        LinearLayout prevBatTextRow = new LinearLayout(this);
-        prevBatTextRow.setOrientation(LinearLayout.HORIZONTAL);
-
-        TextView prevBatLabel = new TextView(this);
-        prevBatLabel.setText("BATTERY STATUS");
-        prevBatLabel.setTextColor(Color.parseColor("#99FFFFFF"));
-        prevBatLabel.setTextSize(10);
-        prevBatLabel.setTypeface(Typeface.DEFAULT_BOLD);
-        prevBatLabel.setLetterSpacing(0.05f);
-        prevBatLabel.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
-        prevBatTextRow.addView(prevBatLabel);
-
-        prevBatPct = new TextView(this);
-        prevBatPct.setText("85%");
-        prevBatPct.setTextColor(Color.parseColor("#DC143C"));
-        prevBatPct.setTextSize(11);
-        prevBatPct.setTypeface(Typeface.DEFAULT_BOLD);
-        prevBatTextRow.addView(prevBatPct);
-        prevBatContainer.addView(prevBatTextRow);
-
-        prevBatBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
-        prevBatBar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int)(6 * density)));
-        int trackRes = getResources().getIdentifier("bg_battery_track", "drawable", getPackageName());
-        int progRes = getResources().getIdentifier("bg_battery_progress", "drawable", getPackageName());
-        int animRes = getResources().getIdentifier("bg_battery_charging_anim", "drawable", getPackageName());
-        if (trackRes != 0) prevBatBar.setBackgroundResource(trackRes);
-        if (progRes != 0) prevBatBar.setProgressDrawable(getResources().getDrawable(progRes));
-        if (animRes != 0) prevBatBar.setIndeterminateDrawable(getResources().getDrawable(animRes));
-        prevBatBar.setProgress(85);
-        prevBatContainer.addView(prevBatBar);
-        previewCard.addView(prevBatContainer);
-
-        root.addView(previewCard);
-
-        // Widget Customization Controls Form Card
-        LinearLayout formCard = new LinearLayout(this);
-        formCard.setOrientation(LinearLayout.VERTICAL);
-        formCard.setPadding((int)(18 * density), (int)(18 * density), (int)(18 * density), (int)(18 * density));
-        formCard.setBackground(createLiquidGlassCard(32));
-        formCard.setElevation(6);
-        LinearLayout.LayoutParams formLp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        formLp.topMargin = (int)(14 * density);
-        formCard.setLayoutParams(formLp);
-
-        // 1. Edit Title
-        formCard.addView(createFieldLabel("WIDGET TITLE"));
-        final EditText etTitle = createGlassEditText(WidgetSettingsManager.getTitle(this));
-        etTitle.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                prevTitle.setText(s.toString().isEmpty() ? "RAVEN SHADE" : s.toString());
-            }
-            @Override public void afterTextChanged(Editable s) {}
-        });
-        formCard.addView(etTitle);
-
-        // 2. Edit Subtitle
-        formCard.addView(createFieldLabel("SUBTITLE / GLASS BADGE"));
-        final EditText etSub = createGlassEditText(WidgetSettingsManager.getSubtitle(this));
-        etSub.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                prevSub.setText(s.toString().isEmpty() ? "OBSIDIAN LIQUID GLASS" : s.toString());
-            }
-            @Override public void afterTextChanged(Editable s) {}
-        });
-        formCard.addView(etSub);
-
-        // 3. Edit Custom Tag
-        formCard.addView(createFieldLabel("CUSTOM TAG LABEL"));
-        final EditText etTag = createGlassEditText(WidgetSettingsManager.getTag(this));
-        etTag.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                prevTag.setText(s.toString().isEmpty() ? "RAVENSHADE EDITION" : s.toString());
-            }
-            @Override public void afterTextChanged(Editable s) {}
-        });
-        formCard.addView(etTag);
-
-        // 4. Toggle Switches Row (Show Tag & Show Battery)
-        LinearLayout switchesRow = new LinearLayout(this);
-        switchesRow.setOrientation(LinearLayout.HORIZONTAL);
-        switchesRow.setPadding(0, (int)(12 * density), 0, (int)(12 * density));
-
-        final Switch switchTag = new Switch(this);
-        switchTag.setText("Show Tag  ");
-        switchTag.setTextColor(Color.WHITE);
-        switchTag.setChecked(WidgetSettingsManager.getShowTag(this));
-        switchTag.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton b, boolean isChecked) {
-                prevTag.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-            }
-        });
-        switchesRow.addView(switchTag);
-
-        View sSpacer = new View(this);
-        sSpacer.setLayoutParams(new LinearLayout.LayoutParams((int)(20 * density), 1));
-        switchesRow.addView(sSpacer);
-
-        final Switch switchBat = new Switch(this);
-        switchBat.setText("Show Battery  ");
-        switchBat.setTextColor(Color.WHITE);
-        switchBat.setChecked(WidgetSettingsManager.getShowBattery(this));
-        switchBat.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override public void onCheckedChanged(CompoundButton b, boolean isChecked) {
-                prevBatContainer.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-            }
-        });
-        switchesRow.addView(switchBat);
-        formCard.addView(switchesRow);
-
-        // Form Buttons: Save & Sync + Reset
-        LinearLayout formBtnRow = new LinearLayout(this);
-        formBtnRow.setOrientation(LinearLayout.HORIZONTAL);
-        formBtnRow.setPadding(0, (int)(8 * density), 0, 0);
-
-        Button btnSaveWidget = createLiquidRedButton(this, "💾 Save & Sync Widgets");
-        btnSaveWidget.setLayoutParams(new LinearLayout.LayoutParams(0, (int)(46 * density), 1.6f));
-        btnSaveWidget.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                WidgetSettingsManager.setTitle(MainActivity.this, etTitle.getText().toString().trim());
-                WidgetSettingsManager.setSubtitle(MainActivity.this, etSub.getText().toString().trim());
-                WidgetSettingsManager.setTag(MainActivity.this, etTag.getText().toString().trim());
-                WidgetSettingsManager.setShowTag(MainActivity.this, switchTag.isChecked());
-                WidgetSettingsManager.setShowBattery(MainActivity.this, switchBat.isChecked());
-                WidgetSettingsManager.updateAllWidgets(MainActivity.this);
-                Toast.makeText(MainActivity.this, "✓ Widget settings saved & synced to Home Screen!", Toast.LENGTH_SHORT).show();
-            }
-        });
-        formBtnRow.addView(btnSaveWidget);
-
-        View fbSpacer = new View(this);
-        fbSpacer.setLayoutParams(new LinearLayout.LayoutParams((int)(8 * density), 1));
-        formBtnRow.addView(fbSpacer);
-
-        Button btnResetWidget = createLiquidGlassPillButton("↺ Reset", new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                WidgetSettingsManager.resetDefaults(MainActivity.this);
-                etTitle.setText(WidgetSettingsManager.DEFAULT_TITLE);
-                etSub.setText(WidgetSettingsManager.DEFAULT_SUBTITLE);
-                etTag.setText(WidgetSettingsManager.DEFAULT_TAG);
-                switchTag.setChecked(true);
-                switchBat.setChecked(true);
-                Toast.makeText(MainActivity.this, "↺ Reset to Raven Shade defaults", Toast.LENGTH_SHORT).show();
-            }
-        });
-        btnResetWidget.setLayoutParams(new LinearLayout.LayoutParams(0, (int)(46 * density), 1.0f));
-        formBtnRow.addView(btnResetWidget);
-
-        formCard.addView(formBtnRow);
-        root.addView(formCard);
-
-        // =========================================================================
-        // USABLE WIDGETS CAROUSEL (5 USABLE WIDGETS + 1-TAP PINNING)
-        // =========================================================================
+        // Horizontal Carousel of 6 Usable Widgets
         HorizontalScrollView hsvWidgets = new HorizontalScrollView(this);
         hsvWidgets.setHorizontalScrollBarEnabled(false);
-        hsvWidgets.setPadding(0, (int)(18 * density), 0, (int)(18 * density));
+        hsvWidgets.setPadding(0, 0, 0, (int)(18 * density));
 
         LinearLayout widgetsRow = new LinearLayout(this);
         widgetsRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -691,20 +531,28 @@ public class MainActivity extends Activity {
         // 2. Raven Music Player (4x2)
         widgetsRow.addView(createWidgetPreviewCard(
             "Raven Music Player (4x2)",
-            "Now Playing • Liquid Audio Controls",
+            "Now Playing • Uncongested Liquid Controls",
             MusicWidgetProvider.class,
             4
         ));
 
-        // 3. Shuffle Wallpaper (1x1)
+        // 3. Raven Music Mini (2x2)
+        widgetsRow.addView(createWidgetPreviewCard(
+            "Raven Music Mini (2x2)",
+            "Compact Square Player • Live Track Sync",
+            MusicWidget2x2Provider.class,
+            6
+        ));
+
+        // 4. Shuffle Wallpaper (1x1)
         widgetsRow.addView(createWidgetPreviewCard(
             "Shuffle Wallpaper (1x1)",
-            "1-Tap Random Google Drive Wallpaper",
+            "Pure Text • 1-Tap Google Drive Randomizer",
             WallpaperShuffleWidgetProvider.class,
             5
         ));
 
-        // 4. Quick App Dock (4x1)
+        // 5. Quick App Dock (4x1)
         widgetsRow.addView(createWidgetPreviewCard(
             "Quick App Dock (4x1)",
             "Obsidian Dock • 5 Quick Launch Shortcuts",
@@ -712,7 +560,7 @@ public class MainActivity extends Activity {
             2
         ));
 
-        // 5. Anime Mini Clock (2x2)
+        // 6. Anime Mini Clock (2x2)
         widgetsRow.addView(createWidgetPreviewCard(
             "Anime Mini Clock (2x2)",
             "Compact Obsidian & Crimson Square Clock",
@@ -722,6 +570,513 @@ public class MainActivity extends Activity {
 
         hsvWidgets.addView(widgetsRow);
         root.addView(hsvWidgets);
+
+        // =========================================================================
+        // 3. WIDGET CUSTOMIZATION STUDIO (SEPARATE HEADING & ALL WIDGETS EDITABLE)
+        // =========================================================================
+        widgetsSectionAnchor = createSectionTitle("WIDGET CUSTOMIZATION STUDIO");
+        widgetsSectionAnchor.setPadding(12, (int)(32 * density), 12, (int)(8 * density));
+        root.addView(widgetsSectionAnchor);
+
+        TextView widgetStudioSub = new TextView(this);
+        widgetStudioSub.setText("Select any widget below to customize its text, titles & badges in real-time");
+        widgetStudioSub.setTextColor(Color.parseColor("#B8B8B8"));
+        widgetStudioSub.setTextSize(12);
+        widgetStudioSub.setPadding(16, 0, 16, (int)(14 * density));
+        root.addView(widgetStudioSub);
+
+        // Widget Selector Tab Bar
+        HorizontalScrollView hsvStudioTabs = new HorizontalScrollView(this);
+        hsvStudioTabs.setHorizontalScrollBarEnabled(false);
+        hsvStudioTabs.setPadding(0, 0, 0, (int)(12 * density));
+
+        LinearLayout studioTabsRow = new LinearLayout(this);
+        studioTabsRow.setOrientation(LinearLayout.HORIZONTAL);
+
+        final Button tabClock = createLiquidGlassPillButton("🕒 Clock (4x2)", null);
+        final Button tabMusic = createLiquidGlassPillButton("🎵 Music (4x2 / 2x2)", null);
+        final Button tabShuffle = createLiquidGlassPillButton("🔀 Shuffle (1x1)", null);
+        final Button tabDock = createLiquidGlassPillButton("📱 Quick Dock (4x1)", null);
+        final Button tabAnime = createLiquidGlassPillButton("⛩️ Anime (2x2)", null);
+
+        int tabMargin = (int)(8 * density);
+        LinearLayout.LayoutParams tLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int)(40 * density));
+        tLp.setMargins(0, 0, tabMargin, 0);
+        tabClock.setLayoutParams(tLp);
+        tabMusic.setLayoutParams(tLp);
+        tabShuffle.setLayoutParams(tLp);
+        tabDock.setLayoutParams(tLp);
+        tabAnime.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int)(40 * density)));
+
+        studioTabsRow.addView(tabClock);
+        studioTabsRow.addView(tabMusic);
+        studioTabsRow.addView(tabShuffle);
+        studioTabsRow.addView(tabDock);
+        studioTabsRow.addView(tabAnime);
+        hsvStudioTabs.addView(studioTabsRow);
+        root.addView(hsvStudioTabs);
+
+        // Live Dynamic Preview Box
+        final LinearLayout dynamicPreviewCard = new LinearLayout(this);
+        dynamicPreviewCard.setOrientation(LinearLayout.VERTICAL);
+        dynamicPreviewCard.setPadding((int)(18 * density), (int)(16 * density), (int)(18 * density), (int)(16 * density));
+        dynamicPreviewCard.setBackground(createLiquidGlassCard(28));
+        dynamicPreviewCard.setElevation(8);
+        root.addView(dynamicPreviewCard);
+
+        // Form Card containing sub-forms for each widget
+        LinearLayout formCard = new LinearLayout(this);
+        formCard.setOrientation(LinearLayout.VERTICAL);
+        formCard.setPadding((int)(18 * density), (int)(18 * density), (int)(18 * density), (int)(18 * density));
+        formCard.setBackground(createLiquidGlassCard(32));
+        formCard.setElevation(6);
+        LinearLayout.LayoutParams formLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        formLp.topMargin = (int)(14 * density);
+        formCard.setLayoutParams(formLp);
+
+        // --- SUBFORM 0: Black Raven Clock ---
+        final LinearLayout formClock = new LinearLayout(this);
+        formClock.setOrientation(LinearLayout.VERTICAL);
+
+        formClock.addView(createFieldLabel("CLOCK TITLE"));
+        final EditText etClockTitle = createGlassEditText(WidgetSettingsManager.getTitle(this));
+        formClock.addView(etClockTitle);
+
+        formClock.addView(createFieldLabel("SUBTITLE / GLASS BADGE"));
+        final EditText etClockSub = createGlassEditText(WidgetSettingsManager.getSubtitle(this));
+        formClock.addView(etClockSub);
+
+        formClock.addView(createFieldLabel("CUSTOM TAG LABEL"));
+        final EditText etClockTag = createGlassEditText(WidgetSettingsManager.getTag(this));
+        formClock.addView(etClockTag);
+
+        LinearLayout switchesRow = new LinearLayout(this);
+        switchesRow.setOrientation(LinearLayout.HORIZONTAL);
+        switchesRow.setPadding(0, (int)(12 * density), 0, (int)(4 * density));
+
+        final Switch switchTag = new Switch(this);
+        switchTag.setText("Show Tag Badge  ");
+        switchTag.setTextColor(Color.WHITE);
+        switchTag.setTextSize(12);
+        switchTag.setChecked(WidgetSettingsManager.getShowTag(this));
+        switchesRow.addView(switchTag);
+
+        final Switch switchBat = new Switch(this);
+        switchBat.setText("Show Battery Bar");
+        switchBat.setTextColor(Color.WHITE);
+        switchBat.setTextSize(12);
+        switchBat.setChecked(WidgetSettingsManager.getShowBattery(this));
+        switchesRow.addView(switchBat);
+        formClock.addView(switchesRow);
+
+        // --- SUBFORM 1: Music Widget ---
+        final LinearLayout formMusic = new LinearLayout(this);
+        formMusic.setOrientation(LinearLayout.VERTICAL);
+        formMusic.setVisibility(View.GONE);
+
+        formMusic.addView(createFieldLabel("AUDIO BRAND HEADER"));
+        final EditText etMusicBrand = createGlassEditText(WidgetSettingsManager.getMusicBrand(this));
+        formMusic.addView(etMusicBrand);
+
+        formMusic.addView(createFieldLabel("DEFAULT TRACK TITLE (WHEN IDLE)"));
+        final EditText etMusicTitle = createGlassEditText(WidgetSettingsManager.getMusicDefaultTitle(this));
+        formMusic.addView(etMusicTitle);
+
+        formMusic.addView(createFieldLabel("DEFAULT ARTIST / SESSION (WHEN IDLE)"));
+        final EditText etMusicArtist = createGlassEditText(WidgetSettingsManager.getMusicDefaultArtist(this));
+        formMusic.addView(etMusicArtist);
+
+        formMusic.addView(createFieldLabel("STATUS TAG"));
+        final EditText etMusicTag = createGlassEditText(WidgetSettingsManager.getMusicTag(this));
+        formMusic.addView(etMusicTag);
+
+        // --- SUBFORM 2: Shuffle Wallpaper ---
+        final LinearLayout formShuffle = new LinearLayout(this);
+        formShuffle.setOrientation(LinearLayout.VERTICAL);
+        formShuffle.setVisibility(View.GONE);
+
+        formShuffle.addView(createFieldLabel("PRIMARY BUTTON TEXT"));
+        final EditText etShuffleTitle = createGlassEditText(WidgetSettingsManager.getShuffleTitle(this));
+        formShuffle.addView(etShuffleTitle);
+
+        formShuffle.addView(createFieldLabel("SUBTITLE TEXT"));
+        final EditText etShuffleSub = createGlassEditText(WidgetSettingsManager.getShuffleSubtitle(this));
+        formShuffle.addView(etShuffleSub);
+
+        formShuffle.addView(createFieldLabel("TOP BADGE TAG"));
+        final EditText etShuffleTag = createGlassEditText(WidgetSettingsManager.getShuffleTag(this));
+        formShuffle.addView(etShuffleTag);
+
+        // --- SUBFORM 3: Quick App Dock ---
+        final LinearLayout formDock = new LinearLayout(this);
+        formDock.setOrientation(LinearLayout.VERTICAL);
+        formDock.setVisibility(View.GONE);
+
+        formDock.addView(createFieldLabel("DOCK TITLE"));
+        final EditText etDockTitle = createGlassEditText(WidgetSettingsManager.getDockTitle(this));
+        formDock.addView(etDockTitle);
+
+        formDock.addView(createFieldLabel("DOCK TAG"));
+        final EditText etDockTag = createGlassEditText(WidgetSettingsManager.getDockTag(this));
+        formDock.addView(etDockTag);
+
+        // --- SUBFORM 4: Anime Mini Clock ---
+        final LinearLayout formAnime = new LinearLayout(this);
+        formAnime.setOrientation(LinearLayout.VERTICAL);
+        formAnime.setVisibility(View.GONE);
+
+        formAnime.addView(createFieldLabel("ANIME CLOCK TITLE"));
+        final EditText etAnimeTitle = createGlassEditText(WidgetSettingsManager.getAnimeTitle(this));
+        formAnime.addView(etAnimeTitle);
+
+        formAnime.addView(createFieldLabel("ZONE TAG"));
+        final EditText etAnimeTag = createGlassEditText(WidgetSettingsManager.getAnimeTag(this));
+        formAnime.addView(etAnimeTag);
+
+        formCard.addView(formClock);
+        formCard.addView(formMusic);
+        formCard.addView(formShuffle);
+        formCard.addView(formDock);
+        formCard.addView(formAnime);
+
+        // Form Buttons: Save All & Sync + Reset Defaults
+        LinearLayout formBtnRow = new LinearLayout(this);
+        formBtnRow.setOrientation(LinearLayout.HORIZONTAL);
+        formBtnRow.setPadding(0, (int)(14 * density), 0, 0);
+
+        Button btnSaveWidget = createLiquidRedButton(this, "💾 Save & Sync All Widgets");
+        btnSaveWidget.setLayoutParams(new LinearLayout.LayoutParams(0, (int)(46 * density), 1.6f));
+        btnSaveWidget.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                // 1. Clock
+                WidgetSettingsManager.setTitle(MainActivity.this, etClockTitle.getText().toString().trim());
+                WidgetSettingsManager.setSubtitle(MainActivity.this, etClockSub.getText().toString().trim());
+                WidgetSettingsManager.setTag(MainActivity.this, etClockTag.getText().toString().trim());
+                WidgetSettingsManager.setShowTag(MainActivity.this, switchTag.isChecked());
+                WidgetSettingsManager.setShowBattery(MainActivity.this, switchBat.isChecked());
+
+                // 2. Music
+                WidgetSettingsManager.setMusicBrand(MainActivity.this, etMusicBrand.getText().toString().trim());
+                WidgetSettingsManager.setMusicDefaultTitle(MainActivity.this, etMusicTitle.getText().toString().trim());
+                WidgetSettingsManager.setMusicDefaultArtist(MainActivity.this, etMusicArtist.getText().toString().trim());
+                WidgetSettingsManager.setMusicTag(MainActivity.this, etMusicTag.getText().toString().trim());
+
+                // 3. Shuffle
+                WidgetSettingsManager.setShuffleTitle(MainActivity.this, etShuffleTitle.getText().toString().trim());
+                WidgetSettingsManager.setShuffleSubtitle(MainActivity.this, etShuffleSub.getText().toString().trim());
+                WidgetSettingsManager.setShuffleTag(MainActivity.this, etShuffleTag.getText().toString().trim());
+
+                // 4. Dock
+                WidgetSettingsManager.setDockTitle(MainActivity.this, etDockTitle.getText().toString().trim());
+                WidgetSettingsManager.setDockTag(MainActivity.this, etDockTag.getText().toString().trim());
+
+                // 5. Anime
+                WidgetSettingsManager.setAnimeTitle(MainActivity.this, etAnimeTitle.getText().toString().trim());
+                WidgetSettingsManager.setAnimeTag(MainActivity.this, etAnimeTag.getText().toString().trim());
+
+                WidgetSettingsManager.updateAllWidgets(MainActivity.this);
+                Toast.makeText(MainActivity.this, "✓ All widget texts saved & synced to Home Screen!", Toast.LENGTH_SHORT).show();
+            }
+        });
+        formBtnRow.addView(btnSaveWidget);
+
+        View fbSpacer = new View(this);
+        fbSpacer.setLayoutParams(new LinearLayout.LayoutParams((int)(8 * density), 1));
+        formBtnRow.addView(fbSpacer);
+
+        Button btnResetWidget = createLiquidGlassPillButton("↺ Reset", new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                WidgetSettingsManager.resetDefaults(MainActivity.this);
+                etClockTitle.setText(WidgetSettingsManager.DEFAULT_TITLE);
+                etClockSub.setText(WidgetSettingsManager.DEFAULT_SUBTITLE);
+                etClockTag.setText(WidgetSettingsManager.DEFAULT_TAG);
+                switchTag.setChecked(true);
+                switchBat.setChecked(true);
+
+                etMusicBrand.setText(WidgetSettingsManager.DEFAULT_MUSIC_BRAND);
+                etMusicTitle.setText(WidgetSettingsManager.DEFAULT_MUSIC_TITLE);
+                etMusicArtist.setText(WidgetSettingsManager.DEFAULT_MUSIC_ARTIST);
+                etMusicTag.setText(WidgetSettingsManager.DEFAULT_MUSIC_TAG);
+
+                etShuffleTitle.setText(WidgetSettingsManager.DEFAULT_SHUFFLE_TITLE);
+                etShuffleSub.setText(WidgetSettingsManager.DEFAULT_SHUFFLE_SUBTITLE);
+                etShuffleTag.setText(WidgetSettingsManager.DEFAULT_SHUFFLE_TAG);
+
+                etDockTitle.setText(WidgetSettingsManager.DEFAULT_DOCK_TITLE);
+                etDockTag.setText(WidgetSettingsManager.DEFAULT_DOCK_TAG);
+
+                etAnimeTitle.setText(WidgetSettingsManager.DEFAULT_ANIME_TITLE);
+                etAnimeTag.setText(WidgetSettingsManager.DEFAULT_ANIME_TAG);
+
+                Toast.makeText(MainActivity.this, "↺ Reset to Raven Shade defaults", Toast.LENGTH_SHORT).show();
+            }
+        });
+        btnResetWidget.setLayoutParams(new LinearLayout.LayoutParams(0, (int)(46 * density), 1.0f));
+        formBtnRow.addView(btnResetWidget);
+
+        formCard.addView(formBtnRow);
+        root.addView(formCard);
+
+        // Preview rendering function
+        final Runnable updatePreview = new Runnable() {
+            @Override public void run() {
+                dynamicPreviewCard.removeAllViews();
+                Date now = new Date();
+                SimpleDateFormat timeFmt = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                SimpleDateFormat dateFmt = new SimpleDateFormat("EEEE | d MMM", Locale.getDefault());
+
+                if (formClock.getVisibility() == View.VISIBLE) {
+                    // Clock Preview
+                    LinearLayout head = new LinearLayout(MainActivity.this);
+                    head.setOrientation(LinearLayout.HORIZONTAL);
+                    head.setGravity(Gravity.CENTER_VERTICAL);
+
+                    TextView t = new TextView(MainActivity.this);
+                    t.setText(etClockTitle.getText().toString().isEmpty() ? "RAVEN SHADE" : etClockTitle.getText().toString());
+                    t.setTextColor(Color.parseColor("#DC143C"));
+                    t.setTextSize(14);
+                    t.setTypeface(Typeface.DEFAULT_BOLD);
+                    t.setLetterSpacing(0.10f);
+                    t.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
+                    head.addView(t);
+
+                    TextView g = new TextView(MainActivity.this);
+                    g.setText(etClockSub.getText().toString().isEmpty() ? "OBSIDIAN LIQUID GLASS" : etClockSub.getText().toString());
+                    g.setTextColor(Color.parseColor("#CCFFFFFF"));
+                    g.setTextSize(11);
+                    g.setTypeface(Typeface.DEFAULT_BOLD);
+                    head.addView(g);
+                    dynamicPreviewCard.addView(head);
+
+                    LinearLayout clkRow = new LinearLayout(MainActivity.this);
+                    clkRow.setOrientation(LinearLayout.HORIZONTAL);
+                    clkRow.setGravity(Gravity.CENTER_VERTICAL);
+                    clkRow.setPadding(0, (int)(8 * density), 0, (int)(8 * density));
+
+                    TextView clk = new TextView(MainActivity.this);
+                    clk.setText(timeFmt.format(now));
+                    clk.setTextColor(Color.WHITE);
+                    clk.setTextSize(32);
+                    clk.setTypeface(Typeface.DEFAULT_BOLD);
+                    clkRow.addView(clk);
+
+                    LinearLayout dCol = new LinearLayout(MainActivity.this);
+                    dCol.setOrientation(LinearLayout.VERTICAL);
+                    dCol.setPadding((int)(16 * density), 0, 0, 0);
+
+                    TextView dTxt = new TextView(MainActivity.this);
+                    dTxt.setText(dateFmt.format(now));
+                    dTxt.setTextColor(Color.parseColor("#B8B8B8"));
+                    dTxt.setTextSize(12);
+                    dCol.addView(dTxt);
+
+                    if (switchTag.isChecked()) {
+                        TextView tg = new TextView(MainActivity.this);
+                        tg.setText(etClockTag.getText().toString().isEmpty() ? "RAVENSHADE EDITION" : etClockTag.getText().toString());
+                        tg.setTextColor(Color.parseColor("#80FF5A73"));
+                        tg.setTextSize(9);
+                        tg.setPadding(0, 2, 0, 0);
+                        dCol.addView(tg);
+                    }
+                    clkRow.addView(dCol);
+                    dynamicPreviewCard.addView(clkRow);
+
+                } else if (formMusic.getVisibility() == View.VISIBLE) {
+                    // Music Preview
+                    LinearLayout mRow = new LinearLayout(MainActivity.this);
+                    mRow.setOrientation(LinearLayout.HORIZONTAL);
+                    mRow.setGravity(Gravity.CENTER_VERTICAL);
+
+                    ImageView ivArt = new ImageView(MainActivity.this);
+                    int artSz = (int)(52 * density);
+                    ivArt.setLayoutParams(new LinearLayout.LayoutParams(artSz, artSz));
+                    int musicRes = getResources().getIdentifier("ic_music_note", "drawable", getPackageName());
+                    if (musicRes != 0) ivArt.setImageResource(musicRes);
+                    ivArt.setBackground(createLiquidGlassCapsule());
+                    ivArt.setPadding(6, 6, 6, 6);
+                    mRow.addView(ivArt);
+
+                    LinearLayout mCol = new LinearLayout(MainActivity.this);
+                    mCol.setOrientation(LinearLayout.VERTICAL);
+                    mCol.setPadding((int)(12 * density), 0, 0, 0);
+                    mCol.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
+
+                    TextView bTxt = new TextView(MainActivity.this);
+                    bTxt.setText(etMusicBrand.getText().toString().isEmpty() ? "RAVEN AUDIO" : etMusicBrand.getText().toString());
+                    bTxt.setTextColor(Color.parseColor("#FFDC143C"));
+                    bTxt.setTextSize(10);
+                    bTxt.setTypeface(Typeface.DEFAULT_BOLD);
+                    mCol.addView(bTxt);
+
+                    TextView tTxt = new TextView(MainActivity.this);
+                    tTxt.setText(etMusicTitle.getText().toString().isEmpty() ? "Raven Waves" : etMusicTitle.getText().toString());
+                    tTxt.setTextColor(Color.WHITE);
+                    tTxt.setTextSize(14);
+                    tTxt.setTypeface(Typeface.DEFAULT_BOLD);
+                    mCol.addView(tTxt);
+
+                    TextView aTxt = new TextView(MainActivity.this);
+                    aTxt.setText(etMusicArtist.getText().toString().isEmpty() ? "Obsidian Session" : etMusicArtist.getText().toString());
+                    aTxt.setTextColor(Color.parseColor("#B8B8B8"));
+                    aTxt.setTextSize(11);
+                    mCol.addView(aTxt);
+
+                    mRow.addView(mCol);
+                    dynamicPreviewCard.addView(mRow);
+
+                } else if (formShuffle.getVisibility() == View.VISIBLE) {
+                    // Shuffle Wallpaper (Pure Text) Preview
+                    LinearLayout sBox = new LinearLayout(MainActivity.this);
+                    sBox.setOrientation(LinearLayout.VERTICAL);
+                    sBox.setGravity(Gravity.CENTER);
+                    sBox.setPadding(0, (int)(10 * density), 0, (int)(10 * density));
+
+                    TextView sTag = new TextView(MainActivity.this);
+                    sTag.setText(etShuffleTag.getText().toString().isEmpty() ? "1-TAP" : etShuffleTag.getText().toString());
+                    sTag.setTextColor(Color.parseColor("#FFDC143C"));
+                    sTag.setTextSize(10);
+                    sTag.setTypeface(Typeface.DEFAULT_BOLD);
+                    sTag.setLetterSpacing(0.14f);
+                    sBox.addView(sTag);
+
+                    TextView sTitle = new TextView(MainActivity.this);
+                    sTitle.setText(etShuffleTitle.getText().toString().isEmpty() ? "SHUFFLE" : etShuffleTitle.getText().toString());
+                    sTitle.setTextColor(Color.WHITE);
+                    sTitle.setTextSize(18);
+                    sTitle.setTypeface(Typeface.DEFAULT_BOLD);
+                    sTitle.setLetterSpacing(0.14f);
+                    sTitle.setPadding(0, 4, 0, 0);
+                    sBox.addView(sTitle);
+
+                    TextView sSub = new TextView(MainActivity.this);
+                    sSub.setText(etShuffleSub.getText().toString().isEmpty() ? "WALLPAPER" : etShuffleSub.getText().toString());
+                    sSub.setTextColor(Color.parseColor("#B8B8B8"));
+                    sSub.setTextSize(10);
+                    sSub.setTypeface(Typeface.DEFAULT_BOLD);
+                    sSub.setLetterSpacing(0.10f);
+                    sSub.setPadding(0, 2, 0, 0);
+                    sBox.addView(sSub);
+
+                    dynamicPreviewCard.addView(sBox);
+
+                } else if (formDock.getVisibility() == View.VISIBLE) {
+                    // Dock Preview
+                    LinearLayout dBox = new LinearLayout(MainActivity.this);
+                    dBox.setOrientation(LinearLayout.VERTICAL);
+                    dBox.setGravity(Gravity.CENTER);
+
+                    TextView dTitle = new TextView(MainActivity.this);
+                    dTitle.setText(etDockTitle.getText().toString().isEmpty() ? "RAVEN DOCK" : etDockTitle.getText().toString());
+                    dTitle.setTextColor(Color.WHITE);
+                    dTitle.setTextSize(13);
+                    dTitle.setTypeface(Typeface.DEFAULT_BOLD);
+                    dBox.addView(dTitle);
+
+                    LinearLayout dockIcons = new LinearLayout(MainActivity.this);
+                    dockIcons.setOrientation(LinearLayout.HORIZONTAL);
+                    dockIcons.setGravity(Gravity.CENTER);
+                    dockIcons.setPadding(0, 8, 0, 0);
+                    String[] icons = {"com_google_android_dialer", "com_whatsapp", "com_vivaldi_browser", "com_convx_music", "com_nothing_camera"};
+                    int sz = (int)(32 * density);
+                    for (String ic : icons) {
+                        int res = getResources().getIdentifier(ic, "drawable", getPackageName());
+                        if (res != 0) {
+                            ImageView iv = new ImageView(MainActivity.this);
+                            LinearLayout.LayoutParams ivLp = new LinearLayout.LayoutParams(sz, sz);
+                            ivLp.setMargins(6, 0, 6, 0);
+                            iv.setLayoutParams(ivLp);
+                            iv.setImageResource(res);
+                            dockIcons.addView(iv);
+                        }
+                    }
+                    dBox.addView(dockIcons);
+                    dynamicPreviewCard.addView(dBox);
+
+                } else {
+                    // Anime Clock Preview
+                    LinearLayout aBox = new LinearLayout(MainActivity.this);
+                    aBox.setOrientation(LinearLayout.VERTICAL);
+                    aBox.setGravity(Gravity.CENTER);
+
+                    TextView aTitle = new TextView(MainActivity.this);
+                    aTitle.setText(etAnimeTitle.getText().toString().isEmpty() ? "SHADOW RAVEN" : etAnimeTitle.getText().toString());
+                    aTitle.setTextColor(Color.parseColor("#DC143C"));
+                    aTitle.setTextSize(12);
+                    aTitle.setTypeface(Typeface.DEFAULT_BOLD);
+                    aBox.addView(aTitle);
+
+                    TextView aClk = new TextView(MainActivity.this);
+                    aClk.setText(timeFmt.format(now));
+                    aClk.setTextColor(Color.WHITE);
+                    aClk.setTextSize(28);
+                    aClk.setTypeface(Typeface.DEFAULT_BOLD);
+                    aBox.addView(aClk);
+
+                    TextView aTag = new TextView(MainActivity.this);
+                    aTag.setText(etAnimeTag.getText().toString().isEmpty() ? "ZONE ACTIVE" : etAnimeTag.getText().toString());
+                    aTag.setTextColor(Color.parseColor("#80FF5A73"));
+                    aTag.setTextSize(9);
+                    aBox.addView(aTag);
+
+                    dynamicPreviewCard.addView(aBox);
+                }
+            }
+        };
+
+        // Tab selection logic
+        final View.OnClickListener tabListener = new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                formClock.setVisibility(v == tabClock ? View.VISIBLE : View.GONE);
+                formMusic.setVisibility(v == tabMusic ? View.VISIBLE : View.GONE);
+                formShuffle.setVisibility(v == tabShuffle ? View.VISIBLE : View.GONE);
+                formDock.setVisibility(v == tabDock ? View.VISIBLE : View.GONE);
+                formAnime.setVisibility(v == tabAnime ? View.VISIBLE : View.GONE);
+
+                tabClock.setBackground(v == tabClock ? createLiquidRedGradient(20) : createGlassPill("#12FFFFFF", "#28FFFFFF", 20 * density));
+                tabMusic.setBackground(v == tabMusic ? createLiquidRedGradient(20) : createGlassPill("#12FFFFFF", "#28FFFFFF", 20 * density));
+                tabShuffle.setBackground(v == tabShuffle ? createLiquidRedGradient(20) : createGlassPill("#12FFFFFF", "#28FFFFFF", 20 * density));
+                tabDock.setBackground(v == tabDock ? createLiquidRedGradient(20) : createGlassPill("#12FFFFFF", "#28FFFFFF", 20 * density));
+                tabAnime.setBackground(v == tabAnime ? createLiquidRedGradient(20) : createGlassPill("#12FFFFFF", "#28FFFFFF", 20 * density));
+
+                updatePreview.run();
+            }
+        };
+
+        tabClock.setOnClickListener(tabListener);
+        tabMusic.setOnClickListener(tabListener);
+        tabShuffle.setOnClickListener(tabListener);
+        tabDock.setOnClickListener(tabListener);
+        tabAnime.setOnClickListener(tabListener);
+
+        // TextWatcher to update live preview on type
+        TextWatcher tw = new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { updatePreview.run(); }
+            @Override public void afterTextChanged(Editable s) {}
+        };
+        etClockTitle.addTextChangedListener(tw);
+        etClockSub.addTextChangedListener(tw);
+        etClockTag.addTextChangedListener(tw);
+        etMusicBrand.addTextChangedListener(tw);
+        etMusicTitle.addTextChangedListener(tw);
+        etMusicArtist.addTextChangedListener(tw);
+        etMusicTag.addTextChangedListener(tw);
+        etShuffleTitle.addTextChangedListener(tw);
+        etShuffleSub.addTextChangedListener(tw);
+        etShuffleTag.addTextChangedListener(tw);
+        etDockTitle.addTextChangedListener(tw);
+        etDockTag.addTextChangedListener(tw);
+        etAnimeTitle.addTextChangedListener(tw);
+        etAnimeTag.addTextChangedListener(tw);
+
+        switchTag.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) { updatePreview.run(); }
+        });
+
+        // Initial tab styling
+        tabClock.setBackground(createLiquidRedGradient(20));
+        updatePreview.run();
 
         // =========================================================================
         // 3. AUTOMATIC WALLPAPER CHANGER (GOOGLE DRIVE)
@@ -1027,6 +1382,23 @@ public class MainActivity extends Activity {
         prevBatPct.setText(isCharging ? ("⚡ " + pct + "% CHARGING") : (pct + "%"));
         prevBatBar.setProgress(pct);
         prevBatBar.setIndeterminate(isCharging);
+    }
+
+    private boolean isNotificationListenerEnabled() {
+        try {
+            String pkgName = getPackageName();
+            final String flat = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
+            if (flat != null && !flat.isEmpty()) {
+                final String[] names = flat.split(":");
+                for (String name : names) {
+                    final ComponentName cn = ComponentName.unflattenFromString(name);
+                    if (cn != null && TextUtils.equals(pkgName, cn.getPackageName())) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+        return false;
     }
 
     @Override
@@ -1362,14 +1734,14 @@ public class MainActivity extends Activity {
             mTextCol.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
 
             TextView mTitle = new TextView(this);
-            mTitle.setText("Raven Waves");
+            mTitle.setText(RavenMusicManager.getTitle(this));
             mTitle.setTextColor(Color.WHITE);
             mTitle.setTextSize(12);
             mTitle.setTypeface(Typeface.DEFAULT_BOLD);
             mTextCol.addView(mTitle);
 
             TextView mArtist = new TextView(this);
-            mArtist.setText("Obsidian Crimson");
+            mArtist.setText(RavenMusicManager.getArtist(this));
             mArtist.setTextColor(Color.parseColor("#B8B8B8"));
             mArtist.setTextSize(10);
             mTextCol.addView(mArtist);
@@ -1387,34 +1759,77 @@ public class MainActivity extends Activity {
             preview.addView(mRow);
 
         } else if (type == 5) {
-            // Shuffle Wallpaper (1x1)
+            // Shuffle Wallpaper (1x1) - Pure Text ONLY
             LinearLayout sBox = new LinearLayout(this);
             sBox.setOrientation(LinearLayout.VERTICAL);
             sBox.setGravity(Gravity.CENTER);
+            sBox.setPadding(0, (int)(8 * density), 0, (int)(8 * density));
 
-            ImageView ivShuf = new ImageView(this);
-            ivShuf.setLayoutParams(new LinearLayout.LayoutParams((int)(28 * density), (int)(28 * density)));
-            int icShuf = getResources().getIdentifier("ic_shuffle_wallpaper", "drawable", getPackageName());
-            if (icShuf != 0) ivShuf.setImageResource(icShuf);
-            int bgProg = getResources().getIdentifier("bg_battery_progress", "drawable", getPackageName());
-            if (bgProg != 0) ivShuf.setBackgroundResource(bgProg);
-            ivShuf.setPadding(5, 5, 5, 5);
-            sBox.addView(ivShuf);
+            TextView sTag = new TextView(this);
+            sTag.setText(WidgetSettingsManager.getShuffleTag(this));
+            sTag.setTextColor(Color.parseColor("#FFDC143C"));
+            sTag.setTextSize(9);
+            sTag.setTypeface(Typeface.DEFAULT_BOLD);
+            sTag.setLetterSpacing(0.12f);
+            sBox.addView(sTag);
 
             TextView sTxt = new TextView(this);
-            sTxt.setText("SHUFFLE");
+            sTxt.setText(WidgetSettingsManager.getShuffleTitle(this));
             sTxt.setTextColor(Color.WHITE);
-            sTxt.setTextSize(10);
+            sTxt.setTextSize(15);
             sTxt.setTypeface(Typeface.DEFAULT_BOLD);
-            sTxt.setLetterSpacing(0.08f);
-            sTxt.setPadding(0, 4, 0, 0);
+            sTxt.setLetterSpacing(0.14f);
+            sTxt.setPadding(0, 2, 0, 0);
             sBox.addView(sTxt);
+
+            TextView sSub = new TextView(this);
+            sSub.setText(WidgetSettingsManager.getShuffleSubtitle(this));
+            sSub.setTextColor(Color.parseColor("#B8B8B8"));
+            sSub.setTextSize(8);
+            sSub.setTypeface(Typeface.DEFAULT_BOLD);
+            sSub.setLetterSpacing(0.10f);
+            sSub.setPadding(0, 2, 0, 0);
+            sBox.addView(sSub);
+
             preview.addView(sBox);
+
+        } else if (type == 6) {
+            // Raven Music Mini (2x2)
+            LinearLayout m2Box = new LinearLayout(this);
+            m2Box.setOrientation(LinearLayout.VERTICAL);
+            m2Box.setGravity(Gravity.CENTER);
+
+            ImageView iv2Art = new ImageView(this);
+            int artSz2 = (int)(38 * density);
+            iv2Art.setLayoutParams(new LinearLayout.LayoutParams(artSz2, artSz2));
+            int musicRes2 = getResources().getIdentifier("ic_music_note", "drawable", getPackageName());
+            if (musicRes2 != 0) iv2Art.setImageResource(musicRes2);
+            iv2Art.setBackground(createLiquidGlassCapsule());
+            iv2Art.setPadding(6, 6, 6, 6);
+            m2Box.addView(iv2Art);
+
+            TextView m2Title = new TextView(this);
+            m2Title.setText(RavenMusicManager.getTitle(this));
+            m2Title.setTextColor(Color.WHITE);
+            m2Title.setTextSize(11);
+            m2Title.setTypeface(Typeface.DEFAULT_BOLD);
+            m2Title.setMaxLines(1);
+            m2Title.setPadding(0, 4, 0, 0);
+            m2Box.addView(m2Title);
+
+            TextView m2Artist = new TextView(this);
+            m2Artist.setText(RavenMusicManager.getArtist(this));
+            m2Artist.setTextColor(Color.parseColor("#B8B8B8"));
+            m2Artist.setTextSize(9);
+            m2Artist.setMaxLines(1);
+            m2Box.addView(m2Artist);
+
+            preview.addView(m2Box);
 
         } else {
             // Anime Mini Clock
             TextView b = new TextView(this);
-            b.setText(WidgetSettingsManager.getTitle(this));
+            b.setText(WidgetSettingsManager.getAnimeTitle(this));
             b.setTextColor(Color.parseColor("#DC143C"));
             b.setTextSize(11);
             b.setTypeface(Typeface.DEFAULT_BOLD);

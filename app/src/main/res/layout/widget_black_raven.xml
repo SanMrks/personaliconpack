@@ -126,8 +126,35 @@
             android:max="100"
             android:progress="85"
             android:progressDrawable="@drawable/bg_battery_progress"
-            android:indeterminateDrawable="@drawable/bg_battery_charging_anim"
             android:background="@drawable/bg_battery_track" />
+
+        <ViewFlipper
+            android:id="@+id/widget_battery_flipper"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:layout_marginTop="4dp"
+            android:autoStart="true"
+            android:flipInterval="200"
+            android:background="@drawable/bg_battery_track"
+            android:visibility="gone">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_charging_frame_1" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_charging_frame_2" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_charging_frame_3" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_charging_frame_4" />
+        </ViewFlipper>
     </LinearLayout>
 
 </LinearLayout>
