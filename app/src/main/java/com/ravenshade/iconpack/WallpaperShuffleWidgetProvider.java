@@ -27,7 +27,7 @@ public class WallpaperShuffleWidgetProvider extends AppWidgetProvider {
         String action = intent.getAction();
 
         if (ACTION_SHUFFLE.equals(action)) {
-            Toast.makeText(context, "🔀 Shuffling wallpaper from Google Drive...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "💥 Popping new wallpaper from Raven's Gallery...", Toast.LENGTH_SHORT).show();
             AutoWallpaperManager.changeWallpaper(context, true, 0, new AutoWallpaperManager.WallpaperCallback() {
                 @Override
                 public void onSuccess(final String title) {
@@ -36,7 +36,7 @@ public class WallpaperShuffleWidgetProvider extends AppWidgetProvider {
 
                 @Override
                 public void onError(final String message) {
-                    Toast.makeText(context, "Shuffle failed: " + message, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Failed to load: " + message, Toast.LENGTH_SHORT).show();
                 }
             });
         }

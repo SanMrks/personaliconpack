@@ -138,19 +138,19 @@
             android:background="@drawable/bg_battery_track"
             android:visibility="gone">
 
-            <View
+            <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_charging_frame_1" />
-            <View
+            <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_charging_frame_2" />
-            <View
+            <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_charging_frame_3" />
-            <View
+            <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_charging_frame_4" />

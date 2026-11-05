@@ -18,7 +18,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.net.Uri;
+import android.media.RingtoneManager;
 import android.provider.Settings;
+import java.util.Collections;
 import android.text.TextUtils;
 import android.os.BatteryManager;
 import android.os.Build;
@@ -546,8 +548,8 @@ public class MainActivity extends Activity {
 
         // 4. Shuffle Wallpaper (1x1)
         widgetsRow.addView(createWidgetPreviewCard(
-            "Shuffle Wallpaper (1x1)",
-            "Pure Text • 1-Tap Google Drive Randomizer",
+            "Pop Wallpaper (1x1)",
+            "Pure Text • Instant Random Wallpaper",
             WallpaperShuffleWidgetProvider.class,
             5
         ));
@@ -595,7 +597,7 @@ public class MainActivity extends Activity {
 
         final Button tabClock = createLiquidGlassPillButton("🕒 Clock (4x2)", null);
         final Button tabMusic = createLiquidGlassPillButton("🎵 Music (4x2 / 2x2)", null);
-        final Button tabShuffle = createLiquidGlassPillButton("🔀 Shuffle (1x1)", null);
+        final Button tabShuffle = createLiquidGlassPillButton("💥 Pop (1x1)", null);
         final Button tabDock = createLiquidGlassPillButton("📱 Quick Dock (4x1)", null);
         final Button tabAnime = createLiquidGlassPillButton("⛩️ Anime (2x2)", null);
 
@@ -704,10 +706,6 @@ public class MainActivity extends Activity {
         final EditText etShuffleSub = createGlassEditText(WidgetSettingsManager.getShuffleSubtitle(this));
         formShuffle.addView(etShuffleSub);
 
-        formShuffle.addView(createFieldLabel("TOP BADGE TAG"));
-        final EditText etShuffleTag = createGlassEditText(WidgetSettingsManager.getShuffleTag(this));
-        formShuffle.addView(etShuffleTag);
-
         // --- SUBFORM 3: Quick App Dock ---
         final LinearLayout formDock = new LinearLayout(this);
         formDock.setOrientation(LinearLayout.VERTICAL);
@@ -765,8 +763,7 @@ public class MainActivity extends Activity {
                 // 3. Shuffle
                 WidgetSettingsManager.setShuffleTitle(MainActivity.this, etShuffleTitle.getText().toString().trim());
                 WidgetSettingsManager.setShuffleSubtitle(MainActivity.this, etShuffleSub.getText().toString().trim());
-                WidgetSettingsManager.setShuffleTag(MainActivity.this, etShuffleTag.getText().toString().trim());
-
+                
                 // 4. Dock
                 WidgetSettingsManager.setDockTitle(MainActivity.this, etDockTitle.getText().toString().trim());
                 WidgetSettingsManager.setDockTag(MainActivity.this, etDockTag.getText().toString().trim());
@@ -801,8 +798,7 @@ public class MainActivity extends Activity {
 
                 etShuffleTitle.setText(WidgetSettingsManager.DEFAULT_SHUFFLE_TITLE);
                 etShuffleSub.setText(WidgetSettingsManager.DEFAULT_SHUFFLE_SUBTITLE);
-                etShuffleTag.setText(WidgetSettingsManager.DEFAULT_SHUFFLE_TAG);
-
+                
                 etDockTitle.setText(WidgetSettingsManager.DEFAULT_DOCK_TITLE);
                 etDockTag.setText(WidgetSettingsManager.DEFAULT_DOCK_TAG);
 
@@ -926,36 +922,27 @@ public class MainActivity extends Activity {
                     dynamicPreviewCard.addView(mRow);
 
                 } else if (formShuffle.getVisibility() == View.VISIBLE) {
-                    // Shuffle Wallpaper (Pure Text) Preview
+                    // Pop Wallpaper (Pure Text) Preview
                     LinearLayout sBox = new LinearLayout(MainActivity.this);
                     sBox.setOrientation(LinearLayout.VERTICAL);
                     sBox.setGravity(Gravity.CENTER);
-                    sBox.setPadding(0, (int)(10 * density), 0, (int)(10 * density));
-
-                    TextView sTag = new TextView(MainActivity.this);
-                    sTag.setText(etShuffleTag.getText().toString().isEmpty() ? "1-TAP" : etShuffleTag.getText().toString());
-                    sTag.setTextColor(Color.parseColor("#FFDC143C"));
-                    sTag.setTextSize(10);
-                    sTag.setTypeface(Typeface.DEFAULT_BOLD);
-                    sTag.setLetterSpacing(0.14f);
-                    sBox.addView(sTag);
+                    sBox.setPadding(0, (int)(14 * density), 0, (int)(14 * density));
 
                     TextView sTitle = new TextView(MainActivity.this);
-                    sTitle.setText(etShuffleTitle.getText().toString().isEmpty() ? "SHUFFLE" : etShuffleTitle.getText().toString());
+                    sTitle.setText(etShuffleTitle.getText().toString().isEmpty() ? "POP" : etShuffleTitle.getText().toString());
                     sTitle.setTextColor(Color.WHITE);
-                    sTitle.setTextSize(18);
+                    sTitle.setTextSize(22);
                     sTitle.setTypeface(Typeface.DEFAULT_BOLD);
-                    sTitle.setLetterSpacing(0.14f);
-                    sTitle.setPadding(0, 4, 0, 0);
+                    sTitle.setLetterSpacing(0.16f);
                     sBox.addView(sTitle);
 
                     TextView sSub = new TextView(MainActivity.this);
                     sSub.setText(etShuffleSub.getText().toString().isEmpty() ? "WALLPAPER" : etShuffleSub.getText().toString());
-                    sSub.setTextColor(Color.parseColor("#B8B8B8"));
+                    sSub.setTextColor(Color.parseColor("#FFFF2E4D"));
                     sSub.setTextSize(10);
                     sSub.setTypeface(Typeface.DEFAULT_BOLD);
-                    sSub.setLetterSpacing(0.10f);
-                    sSub.setPadding(0, 2, 0, 0);
+                    sSub.setLetterSpacing(0.14f);
+                    sSub.setPadding(0, 4, 0, 0);
                     sBox.addView(sSub);
 
                     dynamicPreviewCard.addView(sBox);
@@ -1064,8 +1051,7 @@ public class MainActivity extends Activity {
         etMusicTag.addTextChangedListener(tw);
         etShuffleTitle.addTextChangedListener(tw);
         etShuffleSub.addTextChangedListener(tw);
-        etShuffleTag.addTextChangedListener(tw);
-        etDockTitle.addTextChangedListener(tw);
+                etDockTitle.addTextChangedListener(tw);
         etDockTag.addTextChangedListener(tw);
         etAnimeTitle.addTextChangedListener(tw);
         etAnimeTag.addTextChangedListener(tw);
@@ -1290,21 +1276,18 @@ public class MainActivity extends Activity {
         root.addView(wallpapersSectionAnchor);
 
         List<CloudWallpaper> initialItems = loadInitialDriveWallpapers();
+        Collections.shuffle(initialItems);
         driveItems.addAll(initialItems);
 
-        LinearLayout driveSectionHeader = createGallerySubHeader("GOOGLE DRIVE CLOUD", driveItems.size(), true);
-        driveSectionHeader.setPadding(12, 8, 12, (int)(18 * density));
+        LinearLayout driveSectionHeader = createGallerySubHeader("RAVEN'S GALLERY", driveItems.size(), true);
+        driveSectionHeader.setPadding(12, 8, 12, (int)(14 * density));
         root.addView(driveSectionHeader);
 
-        HorizontalScrollView hsvDrive = new HorizontalScrollView(this);
-        hsvDrive.setHorizontalScrollBarEnabled(false);
-        hsvDrive.setPadding(0, 0, 0, (int)(18 * density));
-
         galleryDrive = new LinearLayout(this);
-        galleryDrive.setOrientation(LinearLayout.HORIZONTAL);
+        galleryDrive.setOrientation(LinearLayout.VERTICAL);
+        galleryDrive.setPadding(0, 0, 0, (int)(18 * density));
         populateDriveCards();
-        hsvDrive.addView(galleryDrive);
-        root.addView(hsvDrive);
+        root.addView(galleryDrive);
 
         LinearLayout localSectionHeader = createGallerySubHeader("BUNDLED VAULT", LOCAL_WALLPAPERS.length, false);
         localSectionHeader.setPadding(12, (int)(24 * density), 12, (int)(18 * density));
@@ -1324,6 +1307,60 @@ public class MainActivity extends Activity {
         }
         hsvLocal.addView(galleryLocal);
         root.addView(hsvLocal);
+
+                // =========================================================================
+        // 5. RAVEN AUDIO & RINGTONE SUITE
+        // =========================================================================
+        View ringtonesSectionAnchor = createSectionTitle("RAVEN AUDIO & RINGTONES");
+        ringtonesSectionAnchor.setPadding(12, (int)(32 * density), 12, (int)(8 * density));
+        root.addView(ringtonesSectionAnchor);
+
+        TextView ringtonesSub = new TextView(this);
+        ringtonesSub.setText("Liquid Glass Sound Design • Set System Ringtones, Notifications & Alarms");
+        ringtonesSub.setTextColor(Color.parseColor("#B8B8B8"));
+        ringtonesSub.setTextSize(12);
+        ringtonesSub.setPadding(16, 0, 16, (int)(14 * density));
+        root.addView(ringtonesSub);
+
+        LinearLayout audioCard = new LinearLayout(this);
+        audioCard.setOrientation(LinearLayout.VERTICAL);
+        audioCard.setBackground(createLiquidGlassCard(32));
+        audioCard.setPadding((int)(16 * density), (int)(16 * density), (int)(16 * density), (int)(16 * density));
+        audioCard.setElevation(6);
+
+        for (int i = 0; i < RavenRingtoneManager.BUILTIN_TONES.length; i++) {
+            final int toneIdx = i;
+            final RavenRingtoneManager.ToneInfo tone = RavenRingtoneManager.BUILTIN_TONES[i];
+            audioCard.addView(createRingtoneRow(tone, toneIdx));
+            if (i < RavenRingtoneManager.BUILTIN_TONES.length - 1) {
+                View div = new View(this);
+                div.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
+                div.setBackgroundColor(Color.parseColor("#1FFFFFFF"));
+                audioCard.addView(div);
+            }
+        }
+
+        LinearLayout customRow = new LinearLayout(this);
+        customRow.setOrientation(LinearLayout.HORIZONTAL);
+        customRow.setGravity(Gravity.CENTER_VERTICAL);
+        customRow.setPadding(0, (int)(14 * density), 0, 0);
+
+        Button btnImportTune = createLiquidGlassPillButton("📁 Choose Custom Audio / Tune", new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("audio/*");
+                    startActivityForResult(Intent.createChooser(intent, "Select Your Tune"), 701);
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "File picker not available", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        btnImportTune.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int)(44 * density)));
+        customRow.addView(btnImportTune);
+        audioCard.addView(customRow);
+
+        root.addView(audioCard);
 
         // =========================================================================
         // 5. HANDCRAFTED ICON VAULT (CAROUSEL + EXPLORE + SUPPORT)
@@ -1382,6 +1419,154 @@ public class MainActivity extends Activity {
         prevBatPct.setText(isCharging ? ("⚡ " + pct + "% CHARGING") : (pct + "%"));
         prevBatBar.setProgress(pct);
         prevBatBar.setIndeterminate(isCharging);
+    }
+
+    
+    private View createRingtoneRow(final RavenRingtoneManager.ToneInfo tone, final int index) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.VERTICAL);
+        row.setPadding(0, (int)(10 * density), 0, (int)(10 * density));
+
+        LinearLayout infoRow = new LinearLayout(this);
+        infoRow.setOrientation(LinearLayout.HORIZONTAL);
+        infoRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView tvTitle = new TextView(this);
+        tvTitle.setText(tone.title);
+        tvTitle.setTextColor(Color.WHITE);
+        tvTitle.setTextSize(13);
+        tvTitle.setTypeface(Typeface.DEFAULT_BOLD);
+        tvTitle.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
+        infoRow.addView(tvTitle);
+
+        TextView tvCat = new TextView(this);
+        tvCat.setText(tone.category);
+        tvCat.setTextColor(Color.parseColor("#FFDC143C"));
+        tvCat.setTextSize(9);
+        tvCat.setTypeface(Typeface.DEFAULT_BOLD);
+        tvCat.setLetterSpacing(0.08f);
+        infoRow.addView(tvCat);
+        row.addView(infoRow);
+
+        TextView tvDesc = new TextView(this);
+        tvDesc.setText(tone.description);
+        tvDesc.setTextColor(Color.parseColor("#B8B8B8"));
+        tvDesc.setTextSize(10);
+        tvDesc.setPadding(0, 2, 0, (int)(8 * density));
+        row.addView(tvDesc);
+
+        LinearLayout btnRow = new LinearLayout(this);
+        btnRow.setOrientation(LinearLayout.HORIZONTAL);
+        btnRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        final Button btnPlay = createLiquidGlassPillButton("▶ Play", null);
+        btnPlay.setTextSize(11);
+        btnPlay.setLayoutParams(new LinearLayout.LayoutParams((int)(72 * density), (int)(36 * density)));
+        btnPlay.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                if (RavenRingtoneManager.isPlaying(index)) {
+                    RavenRingtoneManager.stopTone();
+                    btnPlay.setText("▶ Play");
+                } else {
+                    RavenRingtoneManager.playTone(MainActivity.this, index, new Runnable() {
+                        @Override public void run() {
+                            btnPlay.setText(RavenRingtoneManager.isPlaying(index) ? "⏹ Stop" : "▶ Play");
+                        }
+                    });
+                    btnPlay.setText("⏹ Stop");
+                }
+            }
+        });
+        btnRow.addView(btnPlay);
+
+        View s1 = new View(this);
+        s1.setLayoutParams(new LinearLayout.LayoutParams((int)(6 * density), 1));
+        btnRow.addView(s1);
+
+        Button btnSetRing = createLiquidRedButton(this, "🔔 Ringtone");
+        btnSetRing.setTextSize(10);
+        btnSetRing.setLayoutParams(new LinearLayout.LayoutParams(0, (int)(36 * density), 1.0f));
+        btnSetRing.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                applyRingtoneWithCheck(index, RingtoneManager.TYPE_RINGTONE, "Phone Ringtone");
+            }
+        });
+        btnRow.addView(btnSetRing);
+
+        View s2 = new View(this);
+        s2.setLayoutParams(new LinearLayout.LayoutParams((int)(6 * density), 1));
+        btnRow.addView(s2);
+
+        Button btnSetNotif = createLiquidGlassPillButton("💬 Notify", new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                applyRingtoneWithCheck(index, RingtoneManager.TYPE_NOTIFICATION, "Notification Tone");
+            }
+        });
+        btnSetNotif.setTextSize(10);
+        btnSetNotif.setLayoutParams(new LinearLayout.LayoutParams(0, (int)(36 * density), 0.9f));
+        btnRow.addView(btnSetNotif);
+
+        View s3 = new View(this);
+        s3.setLayoutParams(new LinearLayout.LayoutParams((int)(6 * density), 1));
+        btnRow.addView(s3);
+
+        Button btnSetAlarm = createLiquidGlassPillButton("⏰ Alarm", new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                applyRingtoneWithCheck(index, RingtoneManager.TYPE_ALARM, "Alarm Tone");
+            }
+        });
+        btnSetAlarm.setTextSize(10);
+        btnSetAlarm.setLayoutParams(new LinearLayout.LayoutParams(0, (int)(36 * density), 0.8f));
+        btnRow.addView(btnSetAlarm);
+
+        row.addView(btnRow);
+        return row;
+    }
+
+    private void applyRingtoneWithCheck(int index, int type, String typeLabel) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.System.canWrite(this)) {
+            Toast.makeText(this, "Please enable 'Modify System Settings' to apply " + typeLabel, Toast.LENGTH_LONG).show();
+            try {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            } catch (Exception e) {
+                startActivity(new Intent(Settings.ACTION_SETTINGS));
+            }
+            return;
+        }
+
+        boolean ok = RavenRingtoneManager.applyTone(this, index, type);
+        if (ok) {
+            Toast.makeText(this, "✓ Applied " + RavenRingtoneManager.BUILTIN_TONES[index].title + " as " + typeLabel + "!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Could not set " + typeLabel, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 701 && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            final Uri uri = data.getData();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.System.canWrite(this)) {
+                Toast.makeText(this, "Please enable 'Modify System Settings' to apply custom ringtones", Toast.LENGTH_LONG).show();
+                try {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                    intent.setData(Uri.parse("package:" + getPackageName()));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } catch (Exception ignored) {}
+                return;
+            }
+            boolean ok = RavenRingtoneManager.applyCustomAudioUri(this, uri, "Raven Custom Tune", RingtoneManager.TYPE_RINGTONE);
+            if (ok) {
+                Toast.makeText(this, "✓ Applied your custom tune as Phone Ringtone!", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Failed to apply custom tune", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private boolean isNotificationListenerEnabled() {
@@ -1558,17 +1743,32 @@ public class MainActivity extends Activity {
         TextView tv = new TextView(this);
         tv.setText(title);
         tv.setTextColor(Color.parseColor("#FF5449"));
-        tv.setTextSize(12);
+        tv.setTextSize(13);
         tv.setTypeface(Typeface.DEFAULT_BOLD);
         tv.setLetterSpacing(0.08f);
         tv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
         row.addView(tv);
 
+        if (isCloud) {
+            Button btnShuffle = createLiquidGlassPillButton("🔀 Shuffle Gallery", new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    Collections.shuffle(driveItems);
+                    populateDriveCards();
+                    Toast.makeText(MainActivity.this, "🔀 Shuffled Raven's Gallery!", Toast.LENGTH_SHORT).show();
+                }
+            });
+            btnShuffle.setTextSize(11);
+            btnShuffle.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int)(34 * density)));
+            btnShuffle.setPadding((int)(12 * density), 0, (int)(12 * density), 0);
+            row.addView(btnShuffle);
+        }
+
         TextView badge = new TextView(this);
-        badge.setText(count + " ITEMS");
+        badge.setText(isCloud ? "9 OF " + count : count + " ITEMS");
         badge.setTextColor(Color.parseColor("#B8AAAA"));
         badge.setTextSize(10);
         badge.setTypeface(Typeface.DEFAULT_BOLD);
+        badge.setPadding((int)(8 * density), 0, 0, 0);
         row.addView(badge);
         return row;
     }
@@ -1576,17 +1776,90 @@ public class MainActivity extends Activity {
     private void populateDriveCards() {
         if (galleryDrive == null) return;
         galleryDrive.removeAllViews();
-        for (int i = 0; i < driveItems.size(); i++) {
-            final CloudWallpaper item = driveItems.get(i);
-            galleryDrive.addView(createLiquidWallpaperCard(item.title, item.thumbUrl, null, item.fullUrl));
+        if (driveItems.isEmpty()) return;
+
+        int totalToDisplay = Math.min(9, driveItems.size());
+        int columns = 3;
+        int rows = (int) Math.ceil((double) totalToDisplay / columns);
+
+        for (int r = 0; r < rows; r++) {
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            row.setPadding(0, 0, 0, (int)(6 * density));
+
+            for (int c = 0; c < columns; c++) {
+                int index = r * columns + c;
+                if (index < totalToDisplay) {
+                    final CloudWallpaper item = driveItems.get(index);
+                    View card = createLiquidGridWallpaperCard(item.title, item.thumbUrl, null, item.fullUrl);
+                    row.addView(card);
+                } else {
+                    View empty = new View(this);
+                    empty.setLayoutParams(new LinearLayout.LayoutParams(0, 1, 1.0f));
+                    row.addView(empty);
+                }
+            }
+            galleryDrive.addView(row);
         }
+    }
+
+    private View createLiquidGridWallpaperCard(final String title, final String thumbUrl, final String localAsset, final String fullUrl) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        int h = (int)(165 * density);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, h, 1.0f);
+        lp.setMargins((int)(3 * density), (int)(3 * density), (int)(3 * density), (int)(3 * density));
+        card.setLayoutParams(lp);
+        card.setBackground(createLiquidGlassCard(20));
+        card.setPadding(2, 2, 2, 2);
+
+        ImageView iv = new ImageView(this);
+        LinearLayout.LayoutParams ivLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        iv.setLayoutParams(ivLp);
+        iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            iv.setClipToOutline(true);
+            iv.setOutlineProvider(new ViewOutlineProvider() {
+                @Override
+                public void getOutline(View view, Outline outline) {
+                    outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), 18 * density);
+                }
+            });
+        }
+
+        if (localAsset != null) {
+            try {
+                InputStream is = getAssets().open("wallpapers/" + localAsset);
+                Bitmap bm = BitmapFactory.decodeStream(is);
+                is.close();
+                iv.setImageBitmap(bm);
+            } catch (Exception ignored) {}
+        } else if (thumbUrl != null) {
+            loadThumbnailInto(thumbUrl, iv);
+        }
+
+        card.addView(iv);
+        card.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, WallpaperViewerActivity.class);
+                intent.putExtra("title", title);
+                if (localAsset != null) intent.putExtra("local_asset", localAsset);
+                if (fullUrl != null) intent.putExtra("full_url", fullUrl);
+                startActivity(intent);
+            }
+        });
+        return card;
     }
 
     private View createLiquidWallpaperCard(final String title, final String thumbUrl, final String localAsset, final String fullUrl) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
-        int w = (int)(140 * density);
-        int h = (int)(220 * density);
+        int w = (int)(110 * density);
+        int h = (int)(170 * density);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(w, h);
         lp.rightMargin = (int)(12 * density);
         card.setLayoutParams(lp);
@@ -1759,36 +2032,27 @@ public class MainActivity extends Activity {
             preview.addView(mRow);
 
         } else if (type == 5) {
-            // Shuffle Wallpaper (1x1) - Pure Text ONLY
+            // Pop Wallpaper (1x1) - Pure Text ONLY
             LinearLayout sBox = new LinearLayout(this);
             sBox.setOrientation(LinearLayout.VERTICAL);
             sBox.setGravity(Gravity.CENTER);
-            sBox.setPadding(0, (int)(8 * density), 0, (int)(8 * density));
-
-            TextView sTag = new TextView(this);
-            sTag.setText(WidgetSettingsManager.getShuffleTag(this));
-            sTag.setTextColor(Color.parseColor("#FFDC143C"));
-            sTag.setTextSize(9);
-            sTag.setTypeface(Typeface.DEFAULT_BOLD);
-            sTag.setLetterSpacing(0.12f);
-            sBox.addView(sTag);
+            sBox.setPadding(0, (int)(12 * density), 0, (int)(12 * density));
 
             TextView sTxt = new TextView(this);
             sTxt.setText(WidgetSettingsManager.getShuffleTitle(this));
             sTxt.setTextColor(Color.WHITE);
-            sTxt.setTextSize(15);
+            sTxt.setTextSize(18);
             sTxt.setTypeface(Typeface.DEFAULT_BOLD);
-            sTxt.setLetterSpacing(0.14f);
-            sTxt.setPadding(0, 2, 0, 0);
+            sTxt.setLetterSpacing(0.16f);
             sBox.addView(sTxt);
 
             TextView sSub = new TextView(this);
             sSub.setText(WidgetSettingsManager.getShuffleSubtitle(this));
-            sSub.setTextColor(Color.parseColor("#B8B8B8"));
-            sSub.setTextSize(8);
+            sSub.setTextColor(Color.parseColor("#FFFF2E4D"));
+            sSub.setTextSize(9);
             sSub.setTypeface(Typeface.DEFAULT_BOLD);
-            sSub.setLetterSpacing(0.10f);
-            sSub.setPadding(0, 2, 0, 0);
+            sSub.setLetterSpacing(0.14f);
+            sSub.setPadding(0, 3, 0, 0);
             sBox.addView(sSub);
 
             preview.addView(sBox);

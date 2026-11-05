@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ravenshade.iconpack"
-    android:versionCode="32"
-    android:versionName="5.3">
+    android:versionCode="34"
+    android:versionName="5.5">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
     <uses-sdk
         android:minSdkVersion="26"
@@ -186,7 +188,7 @@
         <receiver
             android:name="com.ravenshade.iconpack.WallpaperShuffleWidgetProvider"
             android:exported="true"
-            android:label="Shuffle Wallpaper">
+            android:label="Pop Wallpaper">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.ravenshade.iconpack.ACTION_SHUFFLE_WALLPAPER_WIDGET" />

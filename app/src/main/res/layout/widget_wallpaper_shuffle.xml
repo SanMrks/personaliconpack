@@ -5,39 +5,28 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/bg_widget_glass"
-    android:padding="10dp"
+    android:padding="12dp"
     android:gravity="center">
-
-    <TextView
-        android:id="@+id/widget_shuffle_tag"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="1-TAP"
-        android:textColor="#FFDC143C"
-        android:textSize="8sp"
-        android:textStyle="bold"
-        android:letterSpacing="0.14" />
 
     <TextView
         android:id="@+id/widget_shuffle_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SHUFFLE"
+        android:text="POP"
         android:textColor="#FFFFFFFF"
-        android:textSize="14sp"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:letterSpacing="0.14"
-        android:layout_marginTop="2dp" />
+        android:letterSpacing="0.16" />
 
     <TextView
         android:id="@+id/widget_shuffle_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="WALLPAPER"
-        android:textColor="#B8B8B8"
-        android:textSize="8sp"
+        android:textColor="#FFFF2E4D"
+        android:textSize="9sp"
         android:textStyle="bold"
-        android:letterSpacing="0.10"
-        android:layout_marginTop="2dp" />
+        android:letterSpacing="0.14"
+        android:layout_marginTop="3dp" />
 
 </LinearLayout>

@@ -61,7 +61,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-"%TOOLS%\aapt2.exe" link -I "%TOOLS%\android.jar" --manifest "%ROOT%app\src\main\AndroidManifest.xml" -A "%ROOT%app\src\main\assets" -0 arsc -o "%TOOLS%\app-unsigned.apk" "%TOOLS%\compiled_res.zip" --auto-add-overlay --min-sdk-version 26 --target-sdk-version 34 --version-code 32 --version-name "5.3"
+"%TOOLS%\aapt2.exe" link -I "%TOOLS%\android.jar" --manifest "%ROOT%app\src\main\AndroidManifest.xml" -A "%ROOT%app\src\main\assets" -0 arsc -o "%TOOLS%\app-unsigned.apk" "%TOOLS%\compiled_res.zip" --auto-add-overlay --min-sdk-version 26 --target-sdk-version 34 --version-code 34 --version-name "5.5"
 if errorlevel 1 (
     echo [ERROR] Failed to link APK.
     pause
@@ -107,7 +107,7 @@ del "%TOOLS%\app-aligned.apk" >nul 2>&1
 
 echo.
 echo ==========================================
-echo  SUCCESS! Raven Shade Liquid Glass Customization Suite v5.3 is ready:
+echo  SUCCESS! Raven Shade Liquid Glass Customization Suite v5.5 is ready:
 echo  %OUT%\MyIconPack.apk
 echo ==========================================
 echo.

@@ -47,9 +47,9 @@ public class WidgetSettingsManager {
     public static final String DEFAULT_MUSIC_ARTIST = "Obsidian Crimson Session";
     public static final String DEFAULT_MUSIC_TAG = "NOW PLAYING";
 
-    public static final String DEFAULT_SHUFFLE_TITLE = "SHUFFLE";
+    public static final String DEFAULT_SHUFFLE_TITLE = "POP";
     public static final String DEFAULT_SHUFFLE_SUBTITLE = "WALLPAPER";
-    public static final String DEFAULT_SHUFFLE_TAG = "1-TAP";
+    public static final String DEFAULT_SHUFFLE_TAG = "";
 
     public static final String DEFAULT_DOCK_TITLE = "RAVEN DOCK";
     public static final String DEFAULT_DOCK_TAG = "QUICK ACCESS";
