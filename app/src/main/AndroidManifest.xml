@@ -1,26 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ravenshade.iconpack"
+    android:versionCode="29"
+    android:versionName="5.0">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <uses-sdk
+        android:minSdkVersion="26"
+        android:targetSdkVersion="34" />
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/youtube"
+        android:icon="@drawable/app_icon"
         android:label="@string/app_name"
+        android:theme="@android:style/Theme.NoTitleBar"
         android:supportsRtl="true">
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.ravenshade.iconpack.MainActivity"
             android:exported="true"
+            android:icon="@drawable/app_icon"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Nothing Launcher / Nova / Lawnchair / ADW intents -->
+            <!-- Nova Launcher -->
             <intent-filter>
                 <action android:name="com.novalauncher.THEME" />
                 <category android:name="com.novalauncher.category.CUSTOM_ICON_PACK" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="com.teslacoilsw.launcher.THEME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <!-- ADW / Apex / Lawnchair / Nothing / OnePlus / Xiaomi / System Launchers -->
             <intent-filter>
                 <action android:name="org.adw.launcher.THEMES" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -29,8 +51,38 @@
                 <action android:name="com.anddoes.launcher.THEME" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+
+            <!-- Action Launcher -->
             <intent-filter>
-                <action android:name="com.teslacoilsw.launcher.THEME" />
+                <action android:name="com.actionlauncher.THEME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <!-- Go Launcher EX -->
+            <intent-filter>
+                <action android:name="com.gau.go.launcherex.theme" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <!-- Smart Launcher -->
+            <intent-filter>
+                <action android:name="ginlemon.smartlauncher.THEMES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <!-- Solo Launcher -->
+            <intent-filter>
+                <action android:name="com.morgoo.launcher.THEME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <!-- Icon Picker intents for launchers that support manual icon selection -->
+            <intent-filter>
+                <action android:name="org.adw.launcher.icons.ACTION_PICK_ICON" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.novalauncher.icons.ACTION_PICK_ICON" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
@@ -43,8 +95,76 @@
             <meta-data
                 android:name="com.novalauncher.THEME"
                 android:resource="@xml/appfilter" />
+            <meta-data
+                android:name="com.teslacoilsw.launcher.THEME"
+                android:resource="@xml/appfilter" />
+            <meta-data
+                android:name="org.adw.launcher.THEMES"
+                android:resource="@xml/appfilter" />
         </activity>
 
+        <!-- Fullscreen Wallpaper Viewer Activity -->
+        <activity
+            android:name="com.ravenshade.iconpack.WallpaperViewerActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+
+    
+        <!-- 1. Ravenshade Black Raven Widget (4x2 / 4x1) -->
+        <receiver
+            android:name="com.ravenshade.iconpack.BlackRavenWidgetProvider"
+            android:exported="true"
+            android:label="Black Raven Clock">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BATTERY_CHANGED" />
+                <action android:name="android.intent.action.TIME_TICK" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_black_raven_info" />
+        </receiver>
+
+        <!-- 2. Ravenshade Quick Dock Widget (4x1) -->
+        <receiver
+            android:name="com.ravenshade.iconpack.QuickDockWidgetProvider"
+            android:exported="true"
+            android:label="Ravenshade Dock">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_quick_dock_info" />
+        </receiver>
+
+        <!-- 3. Ravenshade Anime Clock Mini Widget (2x2) -->
+        <receiver
+            android:name="com.ravenshade.iconpack.AnimeClockWidgetProvider"
+            android:exported="true"
+            android:label="Ravenshade Mini Clock">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BATTERY_CHANGED" />
+                <action android:name="android.intent.action.TIME_TICK" />
+                <action android:name="android.intent.action.TIME_SET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_anime_clock_info" />
+        </receiver>
+
+        <!-- 4. Raven Shade Automatic Wallpaper Receiver -->
+        <receiver
+            android:name="com.ravenshade.iconpack.AutoWallpaperReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.ravenshade.iconpack.ACTION_AUTO_WALLPAPER_TRIGGER" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

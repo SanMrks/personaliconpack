@@ -1,0 +1,27 @@
+# Build outputs and binaries
+output/
+tools/bin/
+tools/META-INF/
+tools/compiled_res.zip
+tools/app-unsigned.apk
+tools/app-aligned.apk
+*.apk
+*.idsig
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Gradle and IDE
+.gradle/
+build/
+app/build/
+.idea/
+*.iml
+local.properties
+
+# Root temporary files and archives
+/*.png
+/*.zip
+icons_backup/
+picker_layout.xml

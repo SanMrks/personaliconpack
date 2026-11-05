@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.custom.iconpack"
+    namespace = "com.ravenshade.iconpack"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.custom.iconpack"
+        applicationId = "com.ravenshade.iconpack"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

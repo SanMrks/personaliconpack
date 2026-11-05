@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_mini_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_widget_glass"
+    android:padding="16dp"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/widget_mini_brand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="RAVENSHADE"
+        android:textColor="#FFFF2E4D"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.12" />
+
+    <TextView
+        android:id="@+id/widget_mini_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="09:14"
+        android:textColor="#FFFFFFFF"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:layout_marginTop="2dp" />
+
+    <TextView
+        android:id="@+id/widget_mini_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Thu | Nov 5"
+        android:textColor="#CCFFFFFF"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:layout_marginTop="2dp" />
+
+    <TextView
+        android:id="@+id/widget_mini_battery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="85% BATTERY"
+        android:textColor="#80FF5A73"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:layout_marginTop="6dp" />
+
+</LinearLayout>
