@@ -16,13 +16,13 @@ public class WidgetSettingsManager {
     public static final String KEY_TAG = "widget_tag";
     public static final String KEY_SHOW_TAG = "widget_show_tag";
     public static final String KEY_SHOW_BATTERY = "widget_show_battery";
-    public static final String KEY_GLASS_STYLE = "widget_glass_style";
 
     // 2. Music Widget Keys
     public static final String KEY_MUSIC_BRAND = "widget_music_brand";
     public static final String KEY_MUSIC_TITLE = "widget_music_title";
     public static final String KEY_MUSIC_ARTIST = "widget_music_artist";
     public static final String KEY_MUSIC_TAG = "widget_music_tag";
+    public static final String KEY_MUSIC_WAVE_STYLE = "widget_music_wave_style";
 
     // 3. Shuffle Wallpaper Widget Keys
     public static final String KEY_SHUFFLE_TITLE = "widget_shuffle_title";
@@ -48,7 +48,7 @@ public class WidgetSettingsManager {
 
     // Defaults
     public static final String DEFAULT_TITLE = "RAVEN SHADE";
-    public static final String DEFAULT_SUBTITLE = "OBSIDIAN LIQUID GLASS";
+    public static final String DEFAULT_SUBTITLE = "OBSIDIAN EDITION";
     public static final String DEFAULT_TAG = "RAVENSHADE EDITION";
 
     public static final String DEFAULT_MUSIC_BRAND = "RAVEN AUDIO";
@@ -121,13 +121,6 @@ public class WidgetSettingsManager {
     public static void setShowBattery(Context context, boolean show) {
         getPrefs(context).edit().putBoolean(KEY_SHOW_BATTERY, show).apply();
     }
-    public static String getGlassStyle(Context context) {
-        return getPrefs(context).getString(KEY_GLASS_STYLE, "crystal");
-    }
-    public static void setGlassStyle(Context context, String style) {
-        getPrefs(context).edit().putString(KEY_GLASS_STYLE, style).apply();
-    }
-
     // Music Widget
     public static String getMusicBrand(Context context) {
         return getPrefs(context).getString(KEY_MUSIC_BRAND, DEFAULT_MUSIC_BRAND);
@@ -152,6 +145,12 @@ public class WidgetSettingsManager {
     }
     public static void setMusicTag(Context context, String val) {
         getPrefs(context).edit().putString(KEY_MUSIC_TAG, val).apply();
+    }
+    public static int getMusicWaveStyle(Context context) {
+        return getPrefs(context).getInt(KEY_MUSIC_WAVE_STYLE, 0);
+    }
+    public static void setMusicWaveStyle(Context context, int style) {
+        getPrefs(context).edit().putInt(KEY_MUSIC_WAVE_STYLE, style).apply();
     }
 
     // Shuffle Widget
@@ -245,11 +244,11 @@ public class WidgetSettingsManager {
                 .putString(KEY_TAG, DEFAULT_TAG)
                 .putBoolean(KEY_SHOW_TAG, true)
                 .putBoolean(KEY_SHOW_BATTERY, true)
-                .putString(KEY_GLASS_STYLE, "crystal")
                 .putString(KEY_MUSIC_BRAND, DEFAULT_MUSIC_BRAND)
                 .putString(KEY_MUSIC_TITLE, DEFAULT_MUSIC_TITLE)
                 .putString(KEY_MUSIC_ARTIST, DEFAULT_MUSIC_ARTIST)
                 .putString(KEY_MUSIC_TAG, DEFAULT_MUSIC_TAG)
+                .putInt(KEY_MUSIC_WAVE_STYLE, 0)
                 .putString(KEY_SHUFFLE_TITLE, DEFAULT_SHUFFLE_TITLE)
                 .putString(KEY_SHUFFLE_SUBTITLE, DEFAULT_SHUFFLE_SUBTITLE)
                 .putString(KEY_SHUFFLE_TAG, DEFAULT_SHUFFLE_TAG)
@@ -314,10 +313,14 @@ public class WidgetSettingsManager {
                 WeatherWidgetProvider.updateAppWidget(context, manager, id);
             }
 
-            // Broadcast update
-            Intent updateIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-            updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ravenIds);
-            context.sendBroadcast(updateIntent);
+            // 8. Music Large 2 (4x2 Minimalist Glass)
+            ComponentName musicLarge2Comp = new ComponentName(context, MusicLarge2WidgetProvider.class);
+            int[] musicLarge2Ids = manager.getAppWidgetIds(musicLarge2Comp);
+            for (int id : musicLarge2Ids) {
+                MusicLarge2WidgetProvider.updateAppWidget(context, manager, id);
+            }
+
+// Widgets updated directly above
         } catch (Exception e) {
             e.printStackTrace();
         }

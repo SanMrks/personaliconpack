@@ -105,7 +105,7 @@ public class AutoWallpaperManager {
     }
 
     public static String getCurrentTitle(Context context) {
-        return getPrefs(context).getString(KEY_CURRENT_TITLE, "Raven Shade Obsidian Glass");
+        return getPrefs(context).getString(KEY_CURRENT_TITLE, "Raven Shade Obsidian");
     }
 
     public static String getCurrentUrl(Context context) {
@@ -251,6 +251,13 @@ public class AutoWallpaperManager {
                         notifyIntent.putExtra("title", item.title);
                         notifyIntent.putExtra("thumb", item.thumbUrl);
                         context.sendBroadcast(notifyIntent);
+
+                        // Update widgets cleanly with a short delay for wallpaper colors to settle
+                        MAIN_HANDLER.postDelayed(new Runnable() {
+                            @Override public void run() {
+                                WidgetSettingsManager.updateAllWidgets(context);
+                            }
+                        }, 250);
 
                         if (callback != null) {
                             MAIN_HANDLER.post(new Runnable() {

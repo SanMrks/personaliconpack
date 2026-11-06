@@ -2,15 +2,16 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_music_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
 
-    <!-- Wallpaper-Adaptive Liquid Glass Background Surface -->
+    <!-- Frosted Liquid Glass Dynamic Surface -->
     <ImageView
         android:id="@+id/widget_glass_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY"
-        android:src="@drawable/bg_widget_glass" />
+        android:src="@drawable/bg_widget_card" />
 
     <!-- Centered Content -->
     <LinearLayout
@@ -20,15 +21,13 @@
         android:padding="10dp"
         android:gravity="center">
 
-        <!-- Top: Centered Big Album Art (Enlarged to 66dp) -->
+        <!-- Top: Centered Big Album Art (Clean, no background box) -->
         <ImageView
             android:id="@+id/widget_music_art"
             android:layout_width="66dp"
             android:layout_height="66dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_music_note"
-            android:background="@drawable/bg_liquid_glass_capsule"
-            android:padding="3dp"
             android:contentDescription="Album Art" />
 
         <!-- Center: Track Title & Artist -->
@@ -107,7 +106,7 @@
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:src="@drawable/ic_skip_previous"
-                android:background="@drawable/bg_liquid_glass_capsule"
+                android:background="@drawable/bg_control_chip"
                 android:padding="6dp"
                 android:contentDescription="Previous" />
 
@@ -127,7 +126,7 @@
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:src="@drawable/ic_skip_next"
-                android:background="@drawable/bg_liquid_glass_capsule"
+                android:background="@drawable/bg_control_chip"
                 android:padding="6dp"
                 android:contentDescription="Next" />
         </LinearLayout>

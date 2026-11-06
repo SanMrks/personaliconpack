@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.ravenshade.iconpack"
-    android:versionCode="34"
-    android:versionName="5.5">
+    android:versionCode="36"
+    android:versionName="5.7">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -12,6 +13,15 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
 
     <uses-sdk
         android:minSdkVersion="26"
@@ -214,7 +224,7 @@
                 android:resource="@xml/widget_music_2x2_info" />
         </receiver>
 
-        <!-- 8. Ravenshade Liquid Glass Weather Widget (2x2) -->
+        <!-- 8. Ravenshade Weather Widget (2x2) -->
         <receiver
             android:name="com.ravenshade.iconpack.WeatherWidgetProvider"
             android:exported="true"
@@ -227,7 +237,26 @@
                 android:resource="@xml/widget_weather_info" />
         </receiver>
 
-        <!-- 8. Raven Shade Music Notification & MediaSession Listener -->
+        <!-- 9. Raven Music Large 2 (4x2) -->
+        <receiver
+            android:name="com.ravenshade.iconpack.MusicLarge2WidgetProvider"
+            android:exported="true"
+            android:label="Music Large 2">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.ravenshade.iconpack.ACTION_MUSIC2_PLAY_PAUSE" />
+                <action android:name="com.ravenshade.iconpack.ACTION_MUSIC2_PREV" />
+                <action android:name="com.ravenshade.iconpack.ACTION_MUSIC2_NEXT" />
+                <action android:name="com.ravenshade.iconpack.ACTION_MUSIC2_VOL_DOWN" />
+                <action android:name="com.ravenshade.iconpack.ACTION_MUSIC2_VOL_UP" />
+                <action android:name="com.ravenshade.iconpack.ACTION_MUSIC2_OPEN" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_music_large2_info" />
+        </receiver>
+
+        <!-- 9. Raven Shade Music Notification & MediaSession Listener -->
         <service
             android:name="com.ravenshade.iconpack.RavenNotificationListener"
             android:label="Raven Music Listener"

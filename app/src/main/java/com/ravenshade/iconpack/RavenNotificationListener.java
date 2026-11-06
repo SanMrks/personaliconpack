@@ -1,6 +1,8 @@
 package com.ravenshade.iconpack;
 
 import android.app.Notification;
+import android.app.WallpaperColors;
+import android.app.WallpaperManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -26,6 +28,7 @@ public class RavenNotificationListener extends NotificationListenerService {
     private MediaSessionManager mSessionManager;
     private MediaController mActiveController = null;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private WallpaperManager.OnColorsChangedListener mColorsListener = null;
 
     private final MediaController.Callback mControllerCallback = new MediaController.Callback() {
         @Override
@@ -57,11 +60,40 @@ public class RavenNotificationListener extends NotificationListenerService {
     public void onCreate() {
         super.onCreate();
         sInstanceRef = new WeakReference<>(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            try {
+                final WallpaperManager wm = WallpaperManager.getInstance(this);
+                mColorsListener = new WallpaperManager.OnColorsChangedListener() {
+                    @Override
+                    public void onColorsChanged(WallpaperColors colors, int which) {
+                        if ((which & WallpaperManager.FLAG_SYSTEM) != 0 && colors != null) {
+                            int accent = 0;
+                            if (colors.getPrimaryColor() != null) {
+                                accent = colors.getPrimaryColor().toArgb();
+                            } else if (colors.getSecondaryColor() != null) {
+                                accent = colors.getSecondaryColor().toArgb();
+                            }
+                            if (accent != 0) {
+                                // Dynamic accent
+                                WidgetSettingsManager.updateAllWidgets(RavenNotificationListener.this);
+                            }
+                        }
+                    }
+                };
+                wm.addOnColorsChangedListener(mColorsListener, mHandler);
+            } catch (Throwable ignored) {}
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1 && mColorsListener != null) {
+            try {
+                WallpaperManager wm = WallpaperManager.getInstance(this);
+                wm.removeOnColorsChangedListener(mColorsListener);
+            } catch (Throwable ignored) {}
+        }
         if (mSessionManager != null && mSessionsListener != null) {
             try {
                 mSessionManager.removeOnActiveSessionsChangedListener(mSessionsListener);

@@ -2,15 +2,16 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_shuffle_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
 
-    <!-- Wallpaper-Adaptive Circular Liquid Glass Surface -->
+    <!-- Frosted Liquid Glass Dynamic Surface -->
     <ImageView
         android:id="@+id/widget_glass_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitCenter"
-        android:src="@drawable/bg_widget_glass" />
+        android:scaleType="fitXY"
+        android:src="@drawable/bg_widget_circle" />
 
     <!-- Pure Typography (Centered & Fitted) -->
     <LinearLayout

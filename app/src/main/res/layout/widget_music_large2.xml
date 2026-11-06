@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_music2_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+
+    <!-- Single Layer Frosted Liquid Glass Surface -->
+    <ImageView
+        android:id="@+id/widget_glass_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/bg_widget_card" />
+
+    <!-- Centered Content Grid (2 Rows) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="10dp">
+
+        <!-- Row 1: Circular Album Art (Left) + Split Volume Pill (Right) -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp">
+
+            <!-- Circular Album Art -->
+            <ImageView
+                android:id="@+id/widget_music2_art"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_music_note"
+                android:background="@drawable/bg_music_circle_art"
+                android:contentDescription="Album Art" />
+
+            <!-- Space Between -->
+            <View
+                android:layout_width="16dp"
+                android:layout_height="1dp" />
+
+            <!-- Split Volume Pill: Minus (Left Red) | Plus (Right White) -->
+            <LinearLayout
+                android:layout_width="114dp"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <!-- Volume Down (Red Left Cap) -->
+                <ImageView
+                    android:id="@+id/widget_music2_vol_down"
+                    android:layout_width="57dp"
+                    android:layout_height="56dp"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_volume_minus"
+                    android:background="@drawable/bg_volume_pill_minus"
+                    android:contentDescription="Volume Down" />
+
+                <!-- Volume Up (White Right Cap) -->
+                <ImageView
+                    android:id="@+id/widget_music2_vol_up"
+                    android:layout_width="57dp"
+                    android:layout_height="56dp"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_volume_plus"
+                    android:background="@drawable/bg_volume_pill_plus"
+                    android:contentDescription="Volume Up" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Row 2: Previous Track + Next Track + Play/Pause Button -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- 1. Previous Track Circle -->
+            <ImageView
+                android:id="@+id/widget_music2_btn_prev"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:scaleType="center"
+                android:src="@drawable/ic_skip_previous_dark"
+                android:background="@drawable/bg_music_circle_white"
+                android:contentDescription="Previous Track" />
+
+            <!-- Space -->
+            <View
+                android:layout_width="12dp"
+                android:layout_height="1dp" />
+
+            <!-- 2. Next Track Circle -->
+            <ImageView
+                android:id="@+id/widget_music2_btn_next"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:scaleType="center"
+                android:src="@drawable/ic_skip_next_dark"
+                android:background="@drawable/bg_music_circle_white"
+                android:contentDescription="Next Track" />
+
+            <!-- Space -->
+            <View
+                android:layout_width="12dp"
+                android:layout_height="1dp" />
+
+            <!-- 3. Play / Pause Red Circle -->
+            <ImageView
+                android:id="@+id/widget_music2_btn_play"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:scaleType="center"
+                android:src="@drawable/ic_play_arrow"
+                android:background="@drawable/bg_music_circle_red"
+                android:contentDescription="Play or Pause" />
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

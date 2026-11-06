@@ -2,15 +2,16 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_weather_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
 
-    <!-- Wallpaper-Adaptive Liquid Glass Background Surface -->
+    <!-- Frosted Liquid Glass Dynamic Surface -->
     <ImageView
         android:id="@+id/widget_glass_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY"
-        android:src="@drawable/bg_widget_glass" />
+        android:src="@drawable/bg_widget_card" />
 
     <!-- Content Container -->
     <LinearLayout
@@ -32,7 +33,7 @@
                 android:layout_width="44dp"
                 android:layout_height="44dp"
                 android:src="@drawable/ic_weather_sunny"
-                android:background="@drawable/bg_liquid_glass_capsule"
+                android:background="@drawable/bg_weather_icon_chip"
                 android:padding="6dp"
                 android:contentDescription="Weather Icon" />
 

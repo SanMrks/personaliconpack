@@ -3,12 +3,29 @@ package com.ravenshade.iconpack;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.widget.RemoteViews;
 
 public class WeatherWidgetProvider extends AppWidgetProvider {
+
+    private static final int ACCENT_COLOR = 0xFFFF2E4D;
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        super.onReceive(context, intent);
+        String action = intent != null ? intent.getAction() : null;
+        if (AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(action)) {
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+            ComponentName thisWidget = new ComponentName(context, WeatherWidgetProvider.class);
+            int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
+            for (int id : allWidgetIds) {
+                updateAppWidget(context, appWidgetManager, id);
+            }
+        }
+    }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -25,16 +42,16 @@ public class WeatherWidgetProvider extends AppWidgetProvider {
 
         RemoteViews views = new RemoteViews(pkg, layoutId);
 
-        // 1. Wallpaper-Adaptive Liquid Glass Background
+        // Dynamic Wallpaper-Adaptive Frosted Liquid Glass Surface (2x2)
         int idBg = context.getResources().getIdentifier("widget_glass_bg", "id", pkg);
         if (idBg != 0) {
             try {
-                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 480, 480, 28);
+                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 200, 200, 28);
                 if (glassBm != null) views.setImageViewBitmap(idBg, glassBm);
             } catch (Throwable ignored) {}
         }
 
-        // 2. Weather Details
+        // Weather Details
         int temp = RavenWeatherManager.getTemperature(context);
         int high = RavenWeatherManager.getHigh(context);
         int low = RavenWeatherManager.getLow(context);
@@ -55,7 +72,10 @@ public class WeatherWidgetProvider extends AppWidgetProvider {
         if (idCond != 0) views.setTextViewText(idCond, RavenWeatherManager.getCondition(context));
 
         int idTag = context.getResources().getIdentifier("widget_weather_tag", "id", pkg);
-        if (idTag != 0) views.setTextViewText(idTag, WidgetSettingsManager.getWeatherTag(context));
+        if (idTag != 0) {
+            views.setTextViewText(idTag, WidgetSettingsManager.getWeatherTag(context));
+            views.setTextColor(idTag, ACCENT_COLOR);
+        }
 
         int idCity = context.getResources().getIdentifier("widget_weather_city", "id", pkg);
         if (idCity != 0) views.setTextViewText(idCity, WidgetSettingsManager.getWeatherCity(context));
@@ -71,7 +91,7 @@ public class WeatherWidgetProvider extends AppWidgetProvider {
             if (iconRes != 0) views.setImageViewResource(idIcon, iconRes);
         }
 
-        // 3. Click to open app / refresh
+        // Click to open app / refresh
         Intent launchIntent = new Intent(context, MainActivity.class);
         launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pi = PendingIntent.getActivity(

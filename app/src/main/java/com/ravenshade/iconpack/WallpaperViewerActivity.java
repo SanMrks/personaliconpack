@@ -12,7 +12,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -43,15 +45,26 @@ public class WallpaperViewerActivity extends Activity {
     private String wallpaperName;
     private Uri savedImageUri;
 
-    // Liquid Glass Card / Pill Helper
-    public static GradientDrawable createLiquidGlass(int bgColor, int strokeColor, float radius, int strokeWidth) {
-        GradientDrawable g = new GradientDrawable();
-        g.setColor(bgColor);
-        g.setCornerRadius(radius);
-        if (strokeWidth > 0) {
-            g.setStroke(strokeWidth, strokeColor);
-        }
-        return g;
+    // Frosted Liquid Glass Card Helper
+    public static Drawable createModernCard(int bgColor, int strokeColor, float radius, int strokeWidth) {
+        GradientDrawable base = new GradientDrawable(
+                GradientDrawable.Orientation.TL_BR,
+                new int[]{
+                    0x2EFFFFFF,
+                    bgColor != 0 ? bgColor : 0x1407070C,
+                    0x24180408
+                });
+        base.setCornerRadius(radius);
+        base.setStroke(strokeWidth > 0 ? strokeWidth : 3, strokeColor != 0 ? strokeColor : 0x60FFFFFF);
+
+        GradientDrawable glaze = new GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{ 0x33FFFFFF, 0x08FFFFFF, 0x00FFFFFF });
+        glaze.setCornerRadius(radius);
+
+        LayerDrawable ld = new LayerDrawable(new Drawable[]{base, glaze});
+        ld.setLayerInset(1, 4, 4, 4, 40);
+        return ld;
     }
 
     @Override
@@ -80,7 +93,7 @@ public class WallpaperViewerActivity extends Activity {
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         root.addView(imageView);
 
-        // Ambient Bottom & Top Gradient Scrims for readable glass controls
+        // Ambient Bottom & Top Gradient Scrims
         View topScrim = new View(this);
         GradientDrawable topGrad = new GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
@@ -160,16 +173,17 @@ public class WallpaperViewerActivity extends Activity {
         botContainerParams.setMargins(44, 0, 44, 72);
         bottomContainer.setLayoutParams(botContainerParams);
 
-        // --- FROSTED GLASS ACTION DOCK (DOWNLOAD, SHARE, WHATSAPP, INSTAGRAM) ---
+        // --- ACTION DOCK (DOWNLOAD, SHARE, WHATSAPP, INSTAGRAM) ---
         LinearLayout actionDock = new LinearLayout(this);
         actionDock.setOrientation(LinearLayout.HORIZONTAL);
         actionDock.setGravity(Gravity.CENTER_VERTICAL);
         actionDock.setPadding(16, 20, 16, 20);
 
-        GradientDrawable dockBg = new GradientDrawable();
-        dockBg.setColor(Color.parseColor("#80150709")); // Translucent frosted obsidian crimson
+        GradientDrawable dockBg = new GradientDrawable(
+                GradientDrawable.Orientation.TL_BR,
+                new int[]{ 0x33FFFFFF, 0x1607070D, 0x26180408 });
         dockBg.setCornerRadius(60);
-        dockBg.setStroke(2, Color.parseColor("#40FFFFFF")); // Specular light rim
+        dockBg.setStroke(2, 0x66FFFFFF); // Polished specular glass bevel rim
         actionDock.setBackground(dockBg);
         actionDock.setElevation(14);
 
@@ -258,7 +272,7 @@ public class WallpaperViewerActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (currentBitmap != null) {
-                    showCustomLiquidApplyDialog();
+                    showApplyDialog();
                 } else {
                     Toast.makeText(WallpaperViewerActivity.this, "Loading wallpaper...", Toast.LENGTH_SHORT).show();
                 }
@@ -486,15 +500,15 @@ public class WallpaperViewerActivity extends Activity {
         });
     }
 
-    // Custom Liquid Glass Apply Modal Dialog in Red & Black
-    private void showCustomLiquidApplyDialog() {
+    // Custom Apply Modal Dialog in Red & Black
+    private void showApplyDialog() {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         LinearLayout dialogBox = new LinearLayout(this);
         dialogBox.setOrientation(LinearLayout.VERTICAL);
         dialogBox.setPadding(52, 48, 52, 48);
-        dialogBox.setBackground(createLiquidGlass(
+        dialogBox.setBackground(createModernCard(
                 Color.parseColor("#F2150608"),
                 Color.parseColor("#60FF3322"),
                 40, 3));
@@ -517,7 +531,7 @@ public class WallpaperViewerActivity extends Activity {
         subtitle.setPadding(0, 10, 0, 36);
         dialogBox.addView(subtitle);
 
-        // 3 Glass Option Buttons
+        // 3 Option Buttons
         dialogBox.addView(createDialogOptionButton("\u2726  HOME SCREEN", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -590,7 +604,7 @@ public class WallpaperViewerActivity extends Activity {
     }
 
     private void applyWallpaper(final int flags) {
-        Toast.makeText(this, "\u2726 Setting liquid wallpaper...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "\u2726 Setting wallpaper...", Toast.LENGTH_SHORT).show();
         THREAD_POOL.execute(new Runnable() {
             @Override
             public void run() {
@@ -605,6 +619,11 @@ public class WallpaperViewerActivity extends Activity {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
+                            // Wallpaper applied
+                            WidgetSettingsManager.updateAllWidgets(WallpaperViewerActivity.this);
+                            Intent notifyIntent = new Intent(AutoWallpaperManager.ACTION_WALLPAPER_CHANGED);
+                            notifyIntent.putExtra("title", wallpaperName);
+                            sendBroadcast(notifyIntent);
                             Toast.makeText(WallpaperViewerActivity.this, "\u2728 Wallpaper applied successfully!", Toast.LENGTH_SHORT).show();
                         }
                     });

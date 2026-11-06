@@ -175,7 +175,7 @@ public class MainActivity extends Activity {
         }
     };
 
-    // --- LIQUID GLASS UI HELPERS (APPLE iOS 26 × OBSIDIAN & CRIMSON) ---
+    // --- LIQUID GLASS UI HELPERS (RAVEN iOS 26 × OBSIDIAN & CRIMSON) ---
 
     public static GradientDrawable createLiquidScreenBackground() {
         return new GradientDrawable(
@@ -362,9 +362,9 @@ public class MainActivity extends Activity {
         tvBrandName.setGravity(Gravity.CENTER);
         brandHeroCard.addView(tvBrandName);
 
-        // Subtitle: Apple Liquid Glass Suite
+        // Subtitle: Raven Liquid Glass Suite
         TextView tvBrandSub = new TextView(this);
-        tvBrandSub.setText("APPLE LIQUID GLASS \u2022 CRIMSON & OBSIDIAN SUITE");
+        tvBrandSub.setText("RAVEN LIQUID GLASS \u2022 CRIMSON & OBSIDIAN SUITE");
         tvBrandSub.setTextColor(Color.parseColor("#B8B8B8"));
         tvBrandSub.setTextSize(10);
         tvBrandSub.setTypeface(Typeface.DEFAULT_BOLD);
@@ -432,7 +432,7 @@ public class MainActivity extends Activity {
         root.addView(widgetsSectionAnchor);
 
         TextView widgetStudioSub = new TextView(this);
-        widgetStudioSub.setText("Real-time Apple iOS 26 Liquid Glass Editor \u2022 Changes sync to Home Screen");
+        widgetStudioSub.setText("Real-time Raven iOS 26 Liquid Glass Editor \u2022 Changes sync to Home Screen");
         widgetStudioSub.setTextColor(Color.parseColor("#B8B8B8"));
         widgetStudioSub.setTextSize(12);
         widgetStudioSub.setPadding(16, 0, 16, (int)(16 * density));
@@ -1469,7 +1469,7 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_SUBJECT, "Raven Shade Customization App");
-        intent.putExtra(Intent.EXTRA_TEXT, "Check out Raven Shade - Apple Liquid Glass & Crimson customization app for Android!");
+        intent.putExtra(Intent.EXTRA_TEXT, "Check out Raven Shade - Raven Liquid Glass & Crimson customization app for Android!");
         startActivity(Intent.createChooser(intent, "Share Raven Shade via"));
     }
 

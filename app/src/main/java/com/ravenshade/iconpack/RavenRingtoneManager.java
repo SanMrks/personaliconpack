@@ -39,9 +39,9 @@ public class RavenRingtoneManager {
 
     public static final ToneInfo[] BUILTIN_TONES = new ToneInfo[] {
         new ToneInfo(0, "Raven Crimson Bell", "RINGTONE", "Futuristic crimson resonance chime", 587.33), // D5
-        new ToneInfo(1, "Obsidian Glass Flow", "RINGTONE", "Crystalline acoustic liquid ringtone", 440.0), // A4
+        new ToneInfo(1, "Obsidian Resonance", "RINGTONE", "Crystalline acoustic resonant tone", 440.0), // A4
         new ToneInfo(2, "Cyber Raven Horizon", "ALARM", "Futuristic pulsating synth arpeggio", 659.25), // E5
-        new ToneInfo(3, "Liquid Droplet", "NOTIFICATION", "Delicate specular glass droplet tone", 880.0) // A5
+        new ToneInfo(3, "Crisp Droplet", "NOTIFICATION", "Delicate acoustic chime tone", 880.0) // A5
     };
 
     private static MediaPlayer sMediaPlayer = null;

@@ -3,8 +3,10 @@ package com.ravenshade.iconpack;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -39,6 +41,13 @@ public class WallpaperShuffleWidgetProvider extends AppWidgetProvider {
                     Toast.makeText(context, "Failed to load: " + message, Toast.LENGTH_SHORT).show();
                 }
             });
+        } else if (AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(action)) {
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+            ComponentName thisWidget = new ComponentName(context, WallpaperShuffleWidgetProvider.class);
+            int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
+            for (int id : allWidgetIds) {
+                updateAppWidget(context, appWidgetManager, id);
+            }
         }
     }
 
@@ -49,11 +58,11 @@ public class WallpaperShuffleWidgetProvider extends AppWidgetProvider {
 
         RemoteViews views = new RemoteViews(pkg, layoutId);
 
-        // Dynamic Wallpaper-Adaptive Liquid Glass Background Circle
+        // Dynamic Wallpaper-Adaptive Frosted Liquid Glass Circle Surface (1x1 Pop widget)
         int idBg = context.getResources().getIdentifier("widget_glass_bg", "id", pkg);
         if (idBg != 0) {
             try {
-                android.graphics.Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassCircle(context, 260);
+                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassCircle(context, 160);
                 if (glassBm != null) views.setImageViewBitmap(idBg, glassBm);
             } catch (Throwable ignored) {}
         }

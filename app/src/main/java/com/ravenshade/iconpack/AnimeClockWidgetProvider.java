@@ -19,6 +19,8 @@ import java.util.Locale;
 
 public class AnimeClockWidgetProvider extends AppWidgetProvider {
 
+    private static final int ACCENT_COLOR = 0xFFFF2E4D;
+
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
@@ -50,11 +52,11 @@ public class AnimeClockWidgetProvider extends AppWidgetProvider {
 
         RemoteViews views = new RemoteViews(pkg, layoutId);
 
-        // Dynamic Wallpaper-Adaptive Liquid Glass Background Surface
+        // Dynamic Wallpaper-Adaptive Frosted Liquid Glass Surface
         int idBg = context.getResources().getIdentifier("widget_glass_bg", "id", pkg);
         if (idBg != 0) {
             try {
-                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 460, 460, 28);
+                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 200, 200, 28);
                 if (glassBm != null) views.setImageViewBitmap(idBg, glassBm);
             } catch (Throwable ignored) {}
         }
@@ -64,7 +66,10 @@ public class AnimeClockWidgetProvider extends AppWidgetProvider {
         boolean showBattery = WidgetSettingsManager.getShowBattery(context);
 
         int idBrand = context.getResources().getIdentifier("widget_mini_brand", "id", pkg);
-        if (idBrand != 0) views.setTextViewText(idBrand, customTitle);
+        if (idBrand != 0) {
+            views.setTextViewText(idBrand, customTitle);
+            views.setTextColor(idBrand, ACCENT_COLOR);
+        }
 
         // 2. Time & Date
         Date now = new Date();

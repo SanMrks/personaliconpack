@@ -3,6 +3,7 @@ package com.ravenshade.iconpack;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,6 +16,20 @@ import android.provider.MediaStore;
 import android.widget.RemoteViews;
 
 public class QuickDockWidgetProvider extends AppWidgetProvider {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        super.onReceive(context, intent);
+        String action = intent != null ? intent.getAction() : null;
+        if (AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(action)) {
+            AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+            ComponentName thisWidget = new ComponentName(context, QuickDockWidgetProvider.class);
+            int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
+            for (int id : allWidgetIds) {
+                updateAppWidget(context, appWidgetManager, id);
+            }
+        }
+    }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -30,11 +45,11 @@ public class QuickDockWidgetProvider extends AppWidgetProvider {
 
         RemoteViews views = new RemoteViews(pkg, layoutId);
 
-        // 1. Wallpaper-Adaptive Liquid Glass Background Surface
+        // Dynamic Wallpaper-Adaptive Frosted Liquid Glass Capsule Surface
         int idBg = context.getResources().getIdentifier("widget_glass_bg", "id", pkg);
         if (idBg != 0) {
             try {
-                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 750, 180, 24);
+                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 360, 90, 34);
                 if (glassBm != null) views.setImageViewBitmap(idBg, glassBm);
             } catch (Throwable ignored) {}
         }
@@ -84,7 +99,6 @@ public class QuickDockWidgetProvider extends AppWidgetProvider {
             if (pi != null) {
                 views.setOnClickPendingIntent(viewId, pi);
             } else {
-                // Fallback default actions
                 setupDefaultSlotAction(context, views, slot, viewId, flags);
             }
         }

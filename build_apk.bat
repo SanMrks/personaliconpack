@@ -41,14 +41,12 @@ set JAVAC_ERR=%ERRORLEVEL%
 del "%TOOLS%\sources.txt" >nul 2>&1
 if %JAVAC_ERR% neq 0 (
     echo [ERROR] Failed to compile Java code.
-    pause
     exit /b 1
 )
 
 powershell -NoProfile -Command "& '%JAVA%' -cp '%TOOLS%\d8.jar' com.android.tools.r8.D8 --min-api 26 --output '%TOOLS%\bin' (Get-ChildItem -Recurse '%TOOLS%\bin\com\*.class')"
 if errorlevel 1 (
     echo [ERROR] Failed to generate DEX bytecode.
-    pause
     exit /b 1
 )
 
@@ -57,14 +55,12 @@ if not exist "%OUT%" mkdir "%OUT%"
 "%TOOLS%\aapt2.exe" compile --dir "%ROOT%app\src\main\res" -o "%TOOLS%\compiled_res.zip"
 if errorlevel 1 (
     echo [ERROR] Failed to compile resources.
-    pause
     exit /b 1
 )
 
-"%TOOLS%\aapt2.exe" link -I "%TOOLS%\android.jar" --manifest "%ROOT%app\src\main\AndroidManifest.xml" -A "%ROOT%app\src\main\assets" -0 arsc -o "%TOOLS%\app-unsigned.apk" "%TOOLS%\compiled_res.zip" --auto-add-overlay --min-sdk-version 26 --target-sdk-version 34 --version-code 35 --version-name "5.6"
+"%TOOLS%\aapt2.exe" link -I "%TOOLS%\android.jar" --manifest "%ROOT%app\src\main\AndroidManifest.xml" -A "%ROOT%app\src\main\assets" -0 arsc -o "%TOOLS%\app-unsigned.apk" "%TOOLS%\compiled_res.zip" --auto-add-overlay --min-sdk-version 26 --target-sdk-version 34 --version-code 36 --version-name "5.7"
 if errorlevel 1 (
     echo [ERROR] Failed to link APK.
-    pause
     exit /b 1
 )
 
@@ -72,7 +68,6 @@ echo [4/7] Adding classes.dex to APK...
 "%JAR%" -uf "%TOOLS%\app-unsigned.apk" -C "%TOOLS%\bin" classes.dex
 if errorlevel 1 (
     echo [ERROR] Failed to add classes.dex to APK.
-    pause
     exit /b 1
 )
 
@@ -80,7 +75,6 @@ echo [5/7] Normalizing zip path separators for Android...
 "%PYTHON%" "%TOOLS%\fix_slashes.py" "%TOOLS%\app-unsigned.apk"
 if errorlevel 1 (
     echo [ERROR] Failed to normalize zip slashes.
-    pause
     exit /b 1
 )
 
@@ -88,7 +82,6 @@ echo [6/7] 4-byte ZipAligning APK...
 "%TOOLS%\zipalign.exe" -f -p 4 "%TOOLS%\app-unsigned.apk" "%TOOLS%\app-aligned.apk"
 if errorlevel 1 (
     echo [ERROR] Failed to zipalign APK.
-    pause
     exit /b 1
 )
 
@@ -96,7 +89,6 @@ echo [7/7] Signing APK with Android signature scheme (v1, v2, v3)...
 "%JAVA%" -jar "%TOOLS%\uber-apk-signer.jar" -a "%TOOLS%\app-aligned.apk" -o "%OUT%" --skipZipAlign --allowResign
 if errorlevel 1 (
     echo [ERROR] Failed to sign APK.
-    pause
     exit /b 1
 )
 
@@ -107,7 +99,7 @@ del "%TOOLS%\app-aligned.apk" >nul 2>&1
 
 echo.
 echo ==========================================
-echo  SUCCESS! Raven Shade Liquid Glass Customization Suite v5.5 is ready:
+echo  SUCCESS! Raven Shade Customization Suite v5.7 is ready:
 echo  %OUT%\MyIconPack.apk
 echo ==========================================
 echo.

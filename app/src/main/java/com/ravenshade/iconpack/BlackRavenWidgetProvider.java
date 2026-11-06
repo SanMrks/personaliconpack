@@ -19,6 +19,8 @@ import java.util.Locale;
 
 public class BlackRavenWidgetProvider extends AppWidgetProvider {
 
+    private static final int ACCENT_COLOR = 0xFFFF2E4D;
+
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
@@ -51,11 +53,11 @@ public class BlackRavenWidgetProvider extends AppWidgetProvider {
 
         RemoteViews views = new RemoteViews(pkg, layoutId);
 
-        // Dynamic Wallpaper-Adaptive Liquid Glass Background
+        // Dynamic Wallpaper-Adaptive Frosted Liquid Glass Surface
         int idBg = context.getResources().getIdentifier("widget_glass_bg", "id", pkg);
         if (idBg != 0) {
             try {
-                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 750, 360, 28);
+                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 360, 180, 28);
                 if (glassBm != null) views.setImageViewBitmap(idBg, glassBm);
             } catch (Throwable ignored) {}
         }
@@ -69,10 +71,13 @@ public class BlackRavenWidgetProvider extends AppWidgetProvider {
 
         int idTitle = context.getResources().getIdentifier("widget_title", "id", pkg);
         int idWeather = context.getResources().getIdentifier("widget_weather", "id", pkg);
-        int idTag = context.getResources().getIdentifier("widget_subtitle", "id", pkg);
+        int idTag = context.getResources().getIdentifier("widget_tag", "id", pkg);
         int idBatContainer = context.getResources().getIdentifier("widget_battery_container", "id", pkg);
 
-        if (idTitle != 0) views.setTextViewText(idTitle, customTitle);
+        if (idTitle != 0) {
+            views.setTextViewText(idTitle, customTitle);
+            views.setTextColor(idTitle, ACCENT_COLOR);
+        }
         if (idWeather != 0) views.setTextViewText(idWeather, customSubtitle);
         if (idTag != 0) {
             views.setTextViewText(idTag, customTag);
@@ -92,7 +97,7 @@ public class BlackRavenWidgetProvider extends AppWidgetProvider {
         if (idTime != 0) views.setTextViewText(idTime, timeFormat.format(now));
         if (idDate != 0) views.setTextViewText(idDate, dateFormat.format(now));
 
-        // 3. Battery Status & Glowing Liquid Bar
+        // 3. Battery Status & Glowing Bar
         if (showBattery) {
             int pct = 85;
             boolean isCharging = false;
@@ -112,9 +117,12 @@ public class BlackRavenWidgetProvider extends AppWidgetProvider {
             } catch (Exception ignored) {}
 
             String batText = isCharging ? ("⚡ " + pct + "% CHARGING") : (pct + "%");
-            int idBatPct = context.getResources().getIdentifier("widget_battery_pct", "id", pkg);
-            int idBatBar = context.getResources().getIdentifier("widget_battery_bar", "id", pkg);
-            int idBatFlipper = context.getResources().getIdentifier("widget_battery_flipper", "id", pkg);
+            int idBatPct = context.getResources().getIdentifier("widget_battery", "id", pkg);
+            if (idBatPct == 0) idBatPct = context.getResources().getIdentifier("widget_battery_pct", "id", pkg);
+            int idBatBar = context.getResources().getIdentifier("widget_battery_progress", "id", pkg);
+            if (idBatBar == 0) idBatBar = context.getResources().getIdentifier("widget_battery_bar", "id", pkg);
+            int idBatFlipper = context.getResources().getIdentifier("widget_charging_anim", "id", pkg);
+            if (idBatFlipper == 0) idBatFlipper = context.getResources().getIdentifier("widget_battery_flipper", "id", pkg);
             if (idBatPct != 0) views.setTextViewText(idBatPct, batText);
             if (idBatBar != 0) {
                 views.setProgressBar(idBatBar, 100, pct, false);

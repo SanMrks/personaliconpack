@@ -2,9 +2,10 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_dock_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
 
-    <!-- Wallpaper-Adaptive Liquid Glass Background Surface -->
+    <!-- Frosted Liquid Glass Dynamic Surface -->
     <ImageView
         android:id="@+id/widget_glass_bg"
         android:layout_width="match_parent"

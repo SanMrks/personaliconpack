@@ -179,6 +179,13 @@ public class RavenMusicManager {
             for (int id : ids2x2) {
                 MusicWidget2x2Provider.updateAppWidget(context, manager, id);
             }
+
+            // 3. Music Large 2 (4x2 Minimalist Glass)
+            ComponentName compLarge2 = new ComponentName(context, MusicLarge2WidgetProvider.class);
+            int[] idsLarge2 = manager.getAppWidgetIds(compLarge2);
+            for (int id : idsLarge2) {
+                MusicLarge2WidgetProvider.updateAppWidget(context, manager, id);
+            }
         } catch (Exception ignored) {}
     }
 }
