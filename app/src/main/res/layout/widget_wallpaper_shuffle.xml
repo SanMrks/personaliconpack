@@ -19,7 +19,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:orientation="vertical"
-        android:padding="6dp"
+        android:padding="4dp"
         android:gravity="center">
 
         <TextView
@@ -32,6 +32,10 @@
             android:textSize="17sp"
             android:textStyle="bold"
             android:letterSpacing="0.14"
+            android:shadowColor="#99000000"
+            android:shadowDx="0"
+            android:shadowDy="1.5"
+            android:shadowRadius="3"
             android:maxLines="1"
             android:ellipsize="end"
             android:gravity="center" />
@@ -43,9 +47,13 @@
             android:layout_gravity="center"
             android:text="WALLPAPER"
             android:textColor="#FFFF2E4D"
-            android:textSize="9sp"
+            android:textSize="8sp"
             android:textStyle="bold"
-            android:letterSpacing="0.10"
+            android:letterSpacing="0.04"
+            android:shadowColor="#80000000"
+            android:shadowDx="0"
+            android:shadowDy="1"
+            android:shadowRadius="2"
             android:maxLines="1"
             android:ellipsize="end"
             android:gravity="center"

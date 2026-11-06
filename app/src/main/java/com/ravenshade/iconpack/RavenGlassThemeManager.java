@@ -65,6 +65,26 @@ public class RavenGlassThemeManager {
         return Color.HSVToColor(hsv);
     }
 
+    public static boolean isLightWallpaper(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            try {
+                WallpaperManager wm = WallpaperManager.getInstance(context);
+                WallpaperColors colors = wm.getWallpaperColors(WallpaperManager.FLAG_SYSTEM);
+                if (colors != null) {
+                    if ((colors.getColorHints() & WallpaperColors.HINT_SUPPORTS_DARK_TEXT) != 0) {
+                        return true;
+                    }
+                    if (colors.getPrimaryColor() != null) {
+                        int c = colors.getPrimaryColor().toArgb();
+                        double lum = (0.299 * Color.red(c) + 0.587 * Color.green(c) + 0.114 * Color.blue(c)) / 255.0;
+                        return lum > 0.55;
+                    }
+                }
+            } catch (Throwable ignored) {}
+        }
+        return false;
+    }
+
     /**
      * Procedurally renders an authentic Frosted Liquid Glass surface Bitmap for RemoteViews widgets.
      * Incorporates:
@@ -75,8 +95,8 @@ public class RavenGlassThemeManager {
      * 5. Polished outer specular bevel rim (1.35dp) with dual-angle light reflection
      */
     public static Bitmap createLiquidGlassBitmap(Context context, int widthPx, int heightPx, float cornerRadiusDp) {
-        if (widthPx <= 0) widthPx = 360;
-        if (heightPx <= 0) heightPx = 180;
+        if (widthPx <= 0) widthPx = 540;
+        if (heightPx <= 0) heightPx = 270;
 
         float density = context.getResources().getDisplayMetrics().density;
         // Rectangular curve squircle (18dp)
@@ -91,101 +111,127 @@ public class RavenGlassThemeManager {
         Path clipPath = new Path();
         clipPath.addRoundRect(rect, radiusPx, radiusPx, Path.Direction.CW);
 
-        // 1. Crystal-Clear Luminous Liquid Glass Sheen (Pure optical transmission, wallpaper fully visible)
+        // 1. Luminous Liquid Glass Sheen (Adapts contrast to light/dark wallpaper)
+        boolean isLightWp = isLightWallpaper(context);
+        int topSheen = isLightWp ? 0x55101018 : 0x22FFFFFF;
+        int centerSheen = isLightWp ? 0x3E0A0A10 : 0x03FFFFFF;
+        int bottomSheen = isLightWp ? 0x4812121A : 0x10FFFFFF;
+
         Paint glassSheenPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         glassSheenPaint.setShader(new LinearGradient(
                 0, 0, widthPx * 0.7f, heightPx,
-                new int[]{
-                        0x2EFFFFFF, // Top-left luminous liquid sheen
-                        0x04FFFFFF, // 96% optical crystal clarity
-                        0x14FFFFFF  // Subtle bottom depth
-                },
+                new int[]{ topSheen, centerSheen, bottomSheen },
                 new float[]{0.0f, 0.45f, 1.0f},
                 Shader.TileMode.CLAMP
         ));
         canvas.drawPath(clipPath, glassSheenPaint);
 
-        // 2. Wallpaper-Adaptive Caustic Refraction Glow (Prismatic fluid glow along lower curves)
-        int wpAccent = isAdaptiveEnabled(context) ? getWallpaperAccentColor(context) : DEFAULT_CRIMSON;
-        int r = Color.red(wpAccent);
-        int g = Color.green(wpAccent);
-        int b = Color.blue(wpAccent);
-        int causticFluid1 = Color.argb(0x32, r, g, b);
-        int causticFluid2 = Color.argb(0x24, 0xDC, 0x14, 0x3C);
+        // 2. 3D Water Droplet Surface Tension Shelf (The Liquid Meniscus Refraction Boundary)
+        float shelfInset = 1.3f * density;
+        RectF shelfRect = new RectF(shelfInset, shelfInset, widthPx - shelfInset, heightPx - shelfInset);
+        Path shelfPath = new Path();
+        shelfPath.addRoundRect(shelfRect, Math.max(0, radiusPx - shelfInset), Math.max(0, radiusPx - shelfInset), Path.Direction.CW);
 
-        Paint causticPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        causticPaint.setShader(new LinearGradient(
-                widthPx * 0.2f, heightPx * 0.2f, widthPx, heightPx,
-                new int[]{
-                        0x00000000,
-                        0x00000000,
-                        causticFluid1,
-                        causticFluid2
-                },
-                new float[]{0.0f, 0.42f, 0.80f, 1.0f},
+        Paint shelfShadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        shelfShadowPaint.setStyle(Paint.Style.STROKE);
+        shelfShadowPaint.setStrokeWidth(2.6f * density);
+        shelfShadowPaint.setShader(new LinearGradient(
+                0, 0, 0, heightPx,
+                new int[]{ 0x22000000, 0x55000000 },
+                new float[]{ 0.0f, 1.0f },
                 Shader.TileMode.CLAMP
         ));
-        canvas.drawPath(clipPath, causticPaint);
+        canvas.drawPath(shelfPath, shelfShadowPaint);
 
-        // 3. Fluid Wave Meniscus Glaze (Curved liquid surface tension arc across top 35%)
-        Path meniscusWave = new Path();
-        meniscusWave.moveTo(0, 0);
-        meniscusWave.lineTo(widthPx, 0);
-        meniscusWave.lineTo(widthPx, heightPx * 0.28f);
-        meniscusWave.quadTo(widthPx * 0.48f, heightPx * 0.44f, 0, heightPx * 0.32f);
-        meniscusWave.close();
+        // Inner luminous refraction contour line
+        float innerRimInset = 3.2f * density;
+        RectF innerRimRect = new RectF(innerRimInset, innerRimInset, widthPx - innerRimInset, heightPx - innerRimInset);
+        Path innerRimPath = new Path();
+        innerRimPath.addRoundRect(innerRimRect, Math.max(0, radiusPx - innerRimInset), Math.max(0, radiusPx - innerRimInset), Path.Direction.CW);
 
+        Paint innerRimPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        innerRimPaint.setStyle(Paint.Style.STROKE);
+        innerRimPaint.setStrokeWidth(1.1f * density);
+        innerRimPaint.setShader(new LinearGradient(
+                0, 0, widthPx * 0.6f, heightPx,
+                new int[]{ 0x55FFFFFF, 0x12FFFFFF, 0x00FFFFFF },
+                new float[]{ 0.0f, 0.45f, 1.0f },
+                Shader.TileMode.CLAMP
+        ));
+        canvas.drawPath(innerRimPath, innerRimPaint);
+
+        // 3. Convex Liquid Dome Highlight (Exponential curved gloss reflecting on water droplet surface)
         canvas.save();
         canvas.clipPath(clipPath);
-        canvas.clipPath(meniscusWave);
-        Paint meniscusPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        meniscusPaint.setShader(new LinearGradient(
-                0, 0, 0, heightPx * 0.44f,
+        float domeH = heightPx * 0.44f;
+        Paint domePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        domePaint.setShader(new LinearGradient(
+                0, 0, 0, domeH,
                 new int[]{
-                        0x55FFFFFF, // Brilliant glossy liquid surface highlight
-                        0x18FFFFFF, // Fluid translucent gradient
+                        0x80FFFFFF, // Brilliant glossy liquid surface reflection
+                        0x20FFFFFF, // Mid fluid sheen
                         0x00FFFFFF  // Smooth meniscus dissipation
                 },
-                new float[]{0.0f, 0.38f, 1.0f},
+                new float[]{ 0.0f, 0.38f, 1.0f },
                 Shader.TileMode.CLAMP
         ));
-        canvas.drawRect(0, 0, widthPx, heightPx * 0.48f, meniscusPaint);
+        canvas.drawRect(0, 0, widthPx, domeH, domePaint);
         canvas.restore();
 
-        // 4. Floating Specular Fluid Gloss Highlight (Soft elongated gloss glaze)
+        // 4. Primary Specular Fluid Glaze (Floating elongated gloss reflection)
         canvas.save();
         canvas.clipPath(clipPath);
-        float streakLeft = radiusPx * 0.75f;
-        float streakTop = strokeWidth * 2.2f;
+        float streakLeft = radiusPx * 0.85f;
+        float streakTop = 3.2f * density;
         float streakRight = widthPx * 0.60f;
-        float streakHeight = Math.max(10f * density, heightPx * 0.15f);
+        float streakHeight = Math.max(10f * density, heightPx * 0.16f);
         RectF streakRect = new RectF(streakLeft, streakTop, streakRight, streakTop + streakHeight);
         Paint streakPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         streakPaint.setShader(new LinearGradient(
                 streakLeft, streakTop, streakRight, streakTop + streakHeight,
-                new int[]{ 0x60FFFFFF, 0x1AFFFFFF, 0x00FFFFFF },
-                new float[]{ 0.0f, 0.40f, 1.0f },
+                new int[]{ 0x85FFFFFF, 0x25FFFFFF, 0x00FFFFFF },
+                new float[]{ 0.0f, 0.42f, 1.0f },
                 Shader.TileMode.CLAMP
         ));
         canvas.drawRoundRect(streakRect, streakHeight * 0.5f, streakHeight * 0.5f, streakPaint);
         canvas.restore();
 
-        // 5. Inner Specular Lip Highlight (Gives physical 3D depth to the liquid glass slab)
-        float innerInset = 1.4f * density;
-        RectF innerRect = new RectF(innerInset, innerInset, widthPx - innerInset, heightPx - innerInset);
-        Path innerPath = new Path();
-        innerPath.addRoundRect(innerRect, Math.max(0, radiusPx - innerInset), Math.max(0, radiusPx - innerInset), Path.Direction.CW);
-
-        Paint innerLipPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        innerLipPaint.setStyle(Paint.Style.STROKE);
-        innerLipPaint.setStrokeWidth(0.85f * density);
-        innerLipPaint.setShader(new LinearGradient(
-                0, 0, widthPx * 0.5f, heightPx * 0.5f,
-                new int[]{0x46FFFFFF, 0x0CFFFFFF, 0x00FFFFFF},
-                new float[]{0.0f, 0.36f, 1.0f},
+        // 4b. Secondary Droplet Glint Bead (Tiny optical water droplet cue)
+        canvas.save();
+        canvas.clipPath(clipPath);
+        float beadX = radiusPx * 0.70f;
+        float beadY = radiusPx * 0.70f;
+        float beadR = 4.0f * density;
+        Paint beadPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        beadPaint.setShader(new RadialGradient(
+                beadX, beadY, beadR,
+                new int[]{ 0xB0FFFFFF, 0x30FFFFFF, 0x00FFFFFF },
+                new float[]{ 0.0f, 0.50f, 1.0f },
                 Shader.TileMode.CLAMP
         ));
-        canvas.drawPath(innerPath, innerLipPaint);
+        canvas.drawCircle(beadX, beadY, beadR, beadPaint);
+        canvas.restore();
+
+        // 5. Bottom Water Caustic Focus (With Wallpaper-Adaptive Prismatic Refraction)
+        canvas.save();
+        canvas.clipPath(clipPath);
+        int wpAccent = isAdaptiveEnabled(context) ? getWallpaperAccentColor(context) : DEFAULT_CRIMSON;
+        int r = Color.red(wpAccent);
+        int g = Color.green(wpAccent);
+        int b = Color.blue(wpAccent);
+        int causticFluid = Color.argb(0x3C, r, g, b);
+        int causticCrimson = Color.argb(0x28, 0xDC, 0x14, 0x3C);
+
+        float causticTop = heightPx * 0.68f;
+        Paint causticPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        causticPaint.setShader(new LinearGradient(
+                widthPx * 0.2f, causticTop, widthPx * 0.8f, heightPx,
+                new int[]{ 0x00000000, causticFluid, 0x48FFFFFF, causticCrimson },
+                new float[]{ 0.0f, 0.40f, 0.78f, 1.0f },
+                Shader.TileMode.CLAMP
+        ));
+        canvas.drawRect(0, causticTop, widthPx, heightPx, causticPaint);
+        canvas.restore();
 
         // 6. Polished Specular Outer Bevel Rim (1.35dp)
         Paint strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -194,9 +240,9 @@ public class RavenGlassThemeManager {
         strokePaint.setShader(new LinearGradient(
                 0, 0, widthPx, heightPx,
                 new int[]{
-                        0xA6FFFFFF, // Crisp polished white specular highlight at top-left
-                        0x3EFFFFFF, // Subtle side transmission
-                        causticFluid1 // Caustic bounce along bottom-right edge
+                        0xEBFFFFFF, // Crisp luminous white specular highlight at top-left
+                        0x48FFFFFF, // Fluid side transmission
+                        causticFluid // Caustic reflection bounce along bottom-right edge
                 },
                 new float[]{0.0f, 0.46f, 1.0f},
                 Shader.TileMode.CLAMP
@@ -210,7 +256,7 @@ public class RavenGlassThemeManager {
      * Completely transparent rectangular curved squircle glass for 1x1 widgets
      */
     public static Bitmap createLiquidGlassCircle(Context context, int sizePx) {
-        if (sizePx <= 0) sizePx = 180;
+        if (sizePx <= 0) sizePx = 240;
         return createLiquidGlassBitmap(context, sizePx, sizePx, 18f);
     }
 
@@ -231,18 +277,18 @@ public class RavenGlassThemeManager {
         GradientDrawable baseBody = new GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
                 new int[]{
-                        0x2EFFFFFF, // Luminous specular light dispersion
-                        0x1207070C, // Translucent obsidian core
+                        0x32FFFFFF, // Luminous specular light dispersion
+                        0x1007070C, // Translucent obsidian core
                         causticColor // Translucent caustic depth
                 }
         );
         baseBody.setCornerRadius(radiusPx);
-        baseBody.setStroke((int) (1.4f * density), 0x6EFFFFFF);
+        baseBody.setStroke((int) (1.4f * density), 0x7EFFFFFF);
 
         // Layer 1: Top Glaze Meniscus (Curved liquid glass reflection)
         GradientDrawable topGlaze = new GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{0x3AFFFFFF, 0x0AFFFFFF, 0x00FFFFFF}
+                new int[]{0x45FFFFFF, 0x10FFFFFF, 0x00FFFFFF}
         );
         topGlaze.setCornerRadius(radiusPx);
 

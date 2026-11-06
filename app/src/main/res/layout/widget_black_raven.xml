@@ -36,7 +36,11 @@
                 android:textColor="#FFFF2E4D"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.08" />
+                android:letterSpacing="0.08"
+                android:shadowColor="#80000000"
+                android:shadowDx="0"
+                android:shadowDy="1"
+                android:shadowRadius="2" />
 
             <TextView
                 android:id="@+id/widget_weather"
@@ -45,7 +49,11 @@
                 android:text="OBSIDIAN EDITION"
                 android:textColor="#CCFFFFFF"
                 android:textSize="11sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:shadowColor="#80000000"
+                android:shadowDx="0"
+                android:shadowDy="1"
+                android:shadowRadius="2" />
         </LinearLayout>
 
         <!-- Center: Clock & Date -->
@@ -66,7 +74,11 @@
                 android:textSize="38sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-medium"
-                android:includeFontPadding="false" />
+                android:includeFontPadding="false"
+                android:shadowColor="#99000000"
+                android:shadowDx="0"
+                android:shadowDy="1.5"
+                android:shadowRadius="3" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -83,7 +95,11 @@
                     android:textColor="#B8B8B8"
                     android:textSize="12sp"
                     android:fontFamily="sans-serif"
-                    android:includeFontPadding="false" />
+                    android:includeFontPadding="false"
+                    android:shadowColor="#80000000"
+                    android:shadowDx="0"
+                    android:shadowDy="1"
+                    android:shadowRadius="2" />
 
                 <!-- Custom Tag Label -->
                 <TextView
@@ -96,6 +112,10 @@
                     android:textStyle="bold"
                     android:letterSpacing="0.12"
                     android:includeFontPadding="false"
+                    android:shadowColor="#80000000"
+                    android:shadowDx="0"
+                    android:shadowDy="1"
+                    android:shadowRadius="2"
                     android:layout_marginTop="2dp" />
             </LinearLayout>
         </LinearLayout>
@@ -117,7 +137,11 @@
                 android:textColor="#80FFFFFF"
                 android:textSize="9sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.10" />
+                android:letterSpacing="0.10"
+                android:shadowColor="#80000000"
+                android:shadowDx="0"
+                android:shadowDy="1"
+                android:shadowRadius="2" />
 
             <TextView
                 android:id="@+id/widget_battery"
@@ -126,7 +150,11 @@
                 android:text="85%"
                 android:textColor="#FFFF2E4D"
                 android:textSize="11sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:shadowColor="#80000000"
+                android:shadowDx="0"
+                android:shadowDy="1"
+                android:shadowRadius="2" />
         </LinearLayout>
 
         <!-- Static Progress Bar (When not charging) -->

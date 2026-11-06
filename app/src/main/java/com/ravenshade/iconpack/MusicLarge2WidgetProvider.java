@@ -164,7 +164,7 @@ public class MusicLarge2WidgetProvider extends AppWidgetProvider {
         int idBg = context.getResources().getIdentifier("widget_glass_bg", "id", pkg);
         if (idBg != 0) {
             try {
-                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 360, 180, 18f);
+                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 540, 270, 18f);
                 if (glassBm != null) views.setImageViewBitmap(idBg, glassBm);
             } catch (Throwable ignored) {}
         }
