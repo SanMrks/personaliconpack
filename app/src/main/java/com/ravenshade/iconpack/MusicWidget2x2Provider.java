@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.RemoteViews;
 
 public class MusicWidget2x2Provider extends AppWidgetProvider {
@@ -18,7 +20,7 @@ public class MusicWidget2x2Provider extends AppWidgetProvider {
     public static final String ACTION_MUSIC_2X2_NEXT = "com.ravenshade.iconpack.ACTION_MUSIC_2X2_NEXT";
     public static final String ACTION_MUSIC_2X2_OPEN = "com.ravenshade.iconpack.ACTION_MUSIC_2X2_OPEN";
 
-    private static final int ACCENT_COLOR = 0xFFFF2E4D;
+    private static final Handler sHandler = new Handler(Looper.getMainLooper());
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -28,22 +30,71 @@ public class MusicWidget2x2Provider extends AppWidgetProvider {
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, Intent intent) {
         super.onReceive(context, intent);
         if (intent == null) return;
         String action = intent.getAction();
 
         if (ACTION_MUSIC_2X2_PLAY_PAUSE.equals(action)) {
-            RavenMusicManager.sendPlayPause(context);
+            AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            boolean amActive = (am != null && am.isMusicActive());
+            boolean currentPlaying = RavenMusicManager.isPlaying(context) || amActive;
+            boolean nextPlaying = !currentPlaying;
+
+            // 1. Instant 0ms toggle for responsive tactile feedback
+            RavenMusicManager.getPrefs(context).edit().putBoolean("music_is_playing", nextPlaying).apply();
             updateAll(context);
+
+            // 2. Dispatch command
+            RavenMusicManager.sendPlayPause(context);
+
+            // 3. Delayed sync passes
+            sHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    updateAll(context);
+                }
+            }, 300);
+            sHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    updateAll(context);
+                }
+            }, 750);
+
         } else if (ACTION_MUSIC_2X2_PREV.equals(action)) {
             RavenMusicManager.sendPrevious(context);
-            updateAll(context);
+            sHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    updateAll(context);
+                }
+            }, 350);
+            sHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    updateAll(context);
+                }
+            }, 800);
+
         } else if (ACTION_MUSIC_2X2_NEXT.equals(action)) {
             RavenMusicManager.sendNext(context);
-            updateAll(context);
+            sHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    updateAll(context);
+                }
+            }, 350);
+            sHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    updateAll(context);
+                }
+            }, 800);
+
         } else if (ACTION_MUSIC_2X2_OPEN.equals(action)) {
             launchMusicApp(context);
+
         } else if (AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(action)) {
             updateAll(context);
         }
@@ -89,11 +140,11 @@ public class MusicWidget2x2Provider extends AppWidgetProvider {
 
         RemoteViews views = new RemoteViews(pkg, layoutId);
 
-        // Dynamic Wallpaper-Adaptive Frosted Liquid Glass Surface (2x2 square)
+        // Dynamic Completely Transparent Glass Surface with 18dp squircle rim
         int idBg = context.getResources().getIdentifier("widget_glass_bg", "id", pkg);
         if (idBg != 0) {
             try {
-                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 200, 200, 28);
+                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 200, 200, 18f);
                 if (glassBm != null) views.setImageViewBitmap(idBg, glassBm);
             } catch (Throwable ignored) {}
         }
@@ -119,16 +170,6 @@ public class MusicWidget2x2Provider extends AppWidgetProvider {
         if (idCur != 0) views.setTextViewText(idCur, RavenMusicManager.getCurrentTimeFormatted(context));
         if (idTot != 0) views.setTextViewText(idTot, RavenMusicManager.getTotalTimeFormatted(context));
 
-        // Dynamic Waveform & Line Style (5 options)
-        int idWave = context.getResources().getIdentifier("widget_music_wave", "id", pkg);
-        if (idWave != 0) {
-            try {
-                int waveStyle = WidgetSettingsManager.getMusicWaveStyle(context);
-                Bitmap waveBm = RavenMusicWaveRenderer.renderWaveBitmap(context, waveStyle, 220, 28, ACCENT_COLOR);
-                if (waveBm != null) views.setImageViewBitmap(idWave, waveBm);
-            } catch (Throwable ignored) {}
-        }
-
         // Play/Pause icon
         int icPlay = context.getResources().getIdentifier("ic_play_arrow", "drawable", pkg);
         int icPause = context.getResources().getIdentifier("ic_pause", "drawable", pkg);
@@ -147,32 +188,32 @@ public class MusicWidget2x2Provider extends AppWidgetProvider {
             }
         }
 
-        // Attach PendingIntents
+        // PendingIntents
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) flags |= PendingIntent.FLAG_IMMUTABLE;
 
         if (idPlayBtn != 0) {
             Intent playIntent = new Intent(context, MusicWidget2x2Provider.class);
             playIntent.setAction(ACTION_MUSIC_2X2_PLAY_PAUSE);
-            views.setOnClickPendingIntent(idPlayBtn, PendingIntent.getBroadcast(context, 501, playIntent, flags));
+            views.setOnClickPendingIntent(idPlayBtn, PendingIntent.getBroadcast(context, 201, playIntent, flags));
         }
 
         if (idPrevBtn != 0) {
             Intent prevIntent = new Intent(context, MusicWidget2x2Provider.class);
             prevIntent.setAction(ACTION_MUSIC_2X2_PREV);
-            views.setOnClickPendingIntent(idPrevBtn, PendingIntent.getBroadcast(context, 502, prevIntent, flags));
+            views.setOnClickPendingIntent(idPrevBtn, PendingIntent.getBroadcast(context, 202, prevIntent, flags));
         }
 
         if (idNextBtn != 0) {
             Intent nextIntent = new Intent(context, MusicWidget2x2Provider.class);
             nextIntent.setAction(ACTION_MUSIC_2X2_NEXT);
-            views.setOnClickPendingIntent(idNextBtn, PendingIntent.getBroadcast(context, 503, nextIntent, flags));
+            views.setOnClickPendingIntent(idNextBtn, PendingIntent.getBroadcast(context, 203, nextIntent, flags));
         }
 
         if (idArt != 0) {
             Intent openIntent = new Intent(context, MusicWidget2x2Provider.class);
             openIntent.setAction(ACTION_MUSIC_2X2_OPEN);
-            views.setOnClickPendingIntent(idArt, PendingIntent.getBroadcast(context, 504, openIntent, flags));
+            views.setOnClickPendingIntent(idArt, PendingIntent.getBroadcast(context, 204, openIntent, flags));
         }
 
         appWidgetManager.updateAppWidget(appWidgetId, views);

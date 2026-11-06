@@ -58,11 +58,11 @@ public class WallpaperShuffleWidgetProvider extends AppWidgetProvider {
 
         RemoteViews views = new RemoteViews(pkg, layoutId);
 
-        // Dynamic Wallpaper-Adaptive Frosted Liquid Glass Circle Surface (1x1 Pop widget)
+        // Completely Transparent Rectangular Squircle Glass Surface (18dp)
         int idBg = context.getResources().getIdentifier("widget_glass_bg", "id", pkg);
         if (idBg != 0) {
             try {
-                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassCircle(context, 160);
+                Bitmap glassBm = RavenGlassThemeManager.createLiquidGlassBitmap(context, 180, 180, 18f);
                 if (glassBm != null) views.setImageViewBitmap(idBg, glassBm);
             } catch (Throwable ignored) {}
         }

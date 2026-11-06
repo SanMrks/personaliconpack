@@ -56,13 +56,13 @@
             android:gravity="center"
             android:layout_marginTop="1dp" />
 
-        <!-- Compact Waveform & Time Row -->
+        <!-- Clean Time Row & Divider (Waveform Removed) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginTop="3dp">
+            android:layout_marginTop="4dp">
 
             <TextView
                 android:id="@+id/widget_music_time_current"
@@ -73,16 +73,13 @@
                 android:textSize="8sp"
                 android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/widget_music_wave"
+            <View
                 android:layout_width="0dp"
-                android:layout_height="12dp"
+                android:layout_height="1dp"
                 android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_audio_wave"
-                android:contentDescription="Audio Wave" />
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="6dp"
+                android:background="#2EFFFFFF" />
 
             <TextView
                 android:id="@+id/widget_music_time_total"
@@ -99,12 +96,12 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginTop="4dp">
+            android:layout_marginTop="5dp">
 
             <ImageView
                 android:id="@+id/widget_music_btn_prev"
-                android:layout_width="26dp"
-                android:layout_height="26dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:src="@drawable/ic_skip_previous"
                 android:background="@drawable/bg_control_chip"
                 android:padding="6dp"
@@ -112,19 +109,19 @@
 
             <ImageView
                 android:id="@+id/widget_music_btn_play"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:src="@drawable/ic_play_arrow"
                 android:background="@drawable/bg_battery_progress"
                 android:padding="7dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
                 android:contentDescription="Play / Pause" />
 
             <ImageView
                 android:id="@+id/widget_music_btn_next"
-                android:layout_width="26dp"
-                android:layout_height="26dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:src="@drawable/ic_skip_next"
                 android:background="@drawable/bg_control_chip"
                 android:padding="6dp"

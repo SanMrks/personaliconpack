@@ -19,9 +19,9 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="10dp">
+        android:padding="8dp">
 
-        <!-- Row 1: Circular Album Art (Left) + Split Volume Pill (Right) -->
+        <!-- Row 1: Rectangular Curved Album Art (Left) + Split Volume Pill (Right) -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -29,14 +29,14 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="10dp">
 
-            <!-- Circular Album Art -->
+            <!-- Rectangular Curved Album Art -->
             <ImageView
                 android:id="@+id/widget_music2_art"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_music_note"
-                android:background="@drawable/bg_music_circle_art"
+                android:background="@drawable/bg_music_rect_art"
                 android:contentDescription="Album Art" />
 
             <!-- Space Between -->
@@ -44,31 +44,31 @@
                 android:layout_width="16dp"
                 android:layout_height="1dp" />
 
-            <!-- Split Volume Pill: Minus (Left Red) | Plus (Right White) -->
+            <!-- Split Volume Rect: Minus (Left Red) | Plus (Right Glass) -->
             <LinearLayout
-                android:layout_width="114dp"
-                android:layout_height="56dp"
+                android:layout_width="120dp"
+                android:layout_height="64dp"
                 android:orientation="horizontal"
                 android:gravity="center">
 
-                <!-- Volume Down (Red Left Cap) -->
+                <!-- Volume Down (Left Red Rect) -->
                 <ImageView
                     android:id="@+id/widget_music2_vol_down"
-                    android:layout_width="57dp"
-                    android:layout_height="56dp"
+                    android:layout_width="60dp"
+                    android:layout_height="64dp"
                     android:scaleType="center"
-                    android:src="@drawable/ic_volume_minus"
-                    android:background="@drawable/bg_volume_pill_minus"
+                    android:src="@drawable/ic_volume_minus_28"
+                    android:background="@drawable/bg_volume_rect_minus"
                     android:contentDescription="Volume Down" />
 
-                <!-- Volume Up (White Right Cap) -->
+                <!-- Volume Up (Right Glass Rect) -->
                 <ImageView
                     android:id="@+id/widget_music2_vol_up"
-                    android:layout_width="57dp"
-                    android:layout_height="56dp"
+                    android:layout_width="60dp"
+                    android:layout_height="64dp"
                     android:scaleType="center"
-                    android:src="@drawable/ic_volume_plus"
-                    android:background="@drawable/bg_volume_pill_plus"
+                    android:src="@drawable/ic_volume_plus_28"
+                    android:background="@drawable/bg_volume_rect_plus"
                     android:contentDescription="Volume Up" />
             </LinearLayout>
         </LinearLayout>
@@ -80,44 +80,44 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <!-- 1. Previous Track Circle -->
+            <!-- 1. Previous Track Rect -->
             <ImageView
                 android:id="@+id/widget_music2_btn_prev"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+                android:layout_width="64dp"
+                android:layout_height="58dp"
                 android:scaleType="center"
-                android:src="@drawable/ic_skip_previous_dark"
-                android:background="@drawable/bg_music_circle_white"
+                android:src="@drawable/ic_skip_previous_34"
+                android:background="@drawable/bg_music_rect_button"
                 android:contentDescription="Previous Track" />
 
             <!-- Space -->
             <View
-                android:layout_width="12dp"
+                android:layout_width="10dp"
                 android:layout_height="1dp" />
 
-            <!-- 2. Next Track Circle -->
+            <!-- 2. Next Track Rect -->
             <ImageView
                 android:id="@+id/widget_music2_btn_next"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+                android:layout_width="64dp"
+                android:layout_height="58dp"
                 android:scaleType="center"
-                android:src="@drawable/ic_skip_next_dark"
-                android:background="@drawable/bg_music_circle_white"
+                android:src="@drawable/ic_skip_next_34"
+                android:background="@drawable/bg_music_rect_button"
                 android:contentDescription="Next Track" />
 
             <!-- Space -->
             <View
-                android:layout_width="12dp"
+                android:layout_width="10dp"
                 android:layout_height="1dp" />
 
-            <!-- 3. Play / Pause Red Circle -->
+            <!-- 3. Play / Pause Red Rect -->
             <ImageView
                 android:id="@+id/widget_music2_btn_play"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+                android:layout_width="64dp"
+                android:layout_height="58dp"
                 android:scaleType="center"
-                android:src="@drawable/ic_play_arrow"
-                android:background="@drawable/bg_music_circle_red"
+                android:src="@drawable/ic_play_arrow_34"
+                android:background="@drawable/bg_music_rect_red"
                 android:contentDescription="Play or Pause" />
         </LinearLayout>
     </LinearLayout>

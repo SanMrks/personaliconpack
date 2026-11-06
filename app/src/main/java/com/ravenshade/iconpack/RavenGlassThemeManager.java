@@ -66,83 +66,46 @@ public class RavenGlassThemeManager {
     }
 
     /**
-     * Procedurally renders a high-fidelity Frosted Liquid Glass surface Bitmap for RemoteViews widgets.
+     * Procedurally renders a completely transparent Frosted Liquid Glass surface Bitmap for RemoteViews widgets.
      * Incorporates:
-     * 1. Ultra-translucent obsidian glass body (wallpaper clearly visible through widget)
-     * 2. Specular light refraction top-left to center
-     * 3. Wallpaper-adaptive caustic glow at curves blended with Raven crimson
-     * 4. Curved horizon specular glaze highlight (liquid glass meniscus)
-     * 5. Polished specular outer bevel rim (1.4dp)
+     * 1. Completely transparent body (#00000000 fill) so wallpaper is 100% visible
+     * 2. Modern rectangular curve squircle geometry (18dp corner radius)
+     * 3. Polished specular glass bevel rim (1.3dp) with subtle wallpaper caustic refraction
      */
     public static Bitmap createLiquidGlassBitmap(Context context, int widthPx, int heightPx, float cornerRadiusDp) {
-        if (widthPx <= 0) widthPx = 750;
-        if (heightPx <= 0) heightPx = 360;
+        if (widthPx <= 0) widthPx = 360;
+        if (heightPx <= 0) heightPx = 180;
 
         float density = context.getResources().getDisplayMetrics().density;
-        float radiusPx = cornerRadiusDp * density;
+        // Rectangular curve squircle (18dp)
+        float radiusPx = 18f * density;
 
         Bitmap bitmap = Bitmap.createBitmap(widthPx, heightPx, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
 
-        RectF rect = new RectF(1.5f, 1.5f, widthPx - 1.5f, heightPx - 1.5f);
+        float strokeWidth = 1.3f * density;
+        float inset = strokeWidth / 2.0f;
+        RectF rect = new RectF(inset, inset, widthPx - inset, heightPx - inset);
         Path clipPath = new Path();
         clipPath.addRoundRect(rect, radiusPx, radiusPx, Path.Direction.CW);
 
-        // 1. Base Frosted Liquid Obsidian Glass Body (Translucent ~86% optical clarity)
-        Paint baseGlassPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        baseGlassPaint.setShader(new LinearGradient(
-                0, 0, widthPx, heightPx,
-                new int[]{
-                        0x2EFFFFFF, // Top-left specular sheen
-                        0x1406060B, // Translucent obsidian glass core
-                        0x24160408  // Subtle crimson-obsidian depth
-                },
-                new float[]{0.0f, 0.42f, 1.0f},
-                Shader.TileMode.CLAMP
-        ));
-        canvas.drawPath(clipPath, baseGlassPaint);
+        // Zero fill color - completely transparent glass body
 
-        // 2. Wallpaper-Adaptive Caustic Refraction along Bottom & Edges
+        // Polished Specular Glass Bevel Rim (1.3dp Stroke)
         int wpAccent = isAdaptiveEnabled(context) ? getWallpaperAccentColor(context) : DEFAULT_CRIMSON;
-        int causticStart = Color.argb(0x48, Color.red(wpAccent), Color.green(wpAccent), Color.blue(wpAccent));
-        int causticCrimson = Color.argb(0x40, 0xDC, 0x14, 0x3C);
+        int causticRim = Color.argb(0x60, Color.red(wpAccent), Color.green(wpAccent), Color.blue(wpAccent));
 
-        Paint causticPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        causticPaint.setShader(new LinearGradient(
-                widthPx * 0.15f, heightPx * 0.10f, widthPx, heightPx,
-                new int[]{
-                        0x00000000,
-                        0x0A000000,
-                        causticStart,
-                        causticCrimson
-                },
-                new float[]{0.0f, 0.48f, 0.80f, 1.0f},
-                Shader.TileMode.CLAMP
-        ));
-        canvas.drawPath(clipPath, causticPaint);
-
-        // 3. Curved Horizon Specular Glaze (Liquid Glass Meniscus)
-        Paint horizonGlazePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        horizonGlazePaint.setShader(new LinearGradient(
-                0, 0, widthPx * 0.7f, heightPx * 0.45f,
-                new int[]{0x4AFFFFFF, 0x18FFFFFF, 0x00FFFFFF},
-                new float[]{0.0f, 0.35f, 1.0f},
-                Shader.TileMode.CLAMP
-        ));
-        canvas.drawPath(clipPath, horizonGlazePaint);
-
-        // 4. Polished Specular Glass Bevel Rim (1.4dp Stroke)
         Paint strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         strokePaint.setStyle(Paint.Style.STROKE);
-        strokePaint.setStrokeWidth(1.4f * density);
+        strokePaint.setStrokeWidth(strokeWidth);
         strokePaint.setShader(new LinearGradient(
                 0, 0, widthPx, heightPx,
                 new int[]{
-                        0x80FFFFFF, // Crisp polished specular reflection at top-left
-                        0x2AFFFFFF, // Subtle side transmission
-                        causticStart // Caustic refraction bounce along bottom-right
+                        0x88FFFFFF, // Crisp polished white specular highlight at top-left
+                        0x40FFFFFF, // Subtle side transmission
+                        causticRim  // Delicate wallpaper caustic reflection on lower-right rim
                 },
-                new float[]{0.0f, 0.52f, 1.0f},
+                new float[]{0.0f, 0.50f, 1.0f},
                 Shader.TileMode.CLAMP
         ));
         canvas.drawPath(clipPath, strokePaint);
@@ -151,63 +114,11 @@ public class RavenGlassThemeManager {
     }
 
     /**
-     * Circular Frosted Liquid Glass badge for 1x1 Pop widget
+     * Completely transparent rectangular curved squircle glass for 1x1 widgets
      */
     public static Bitmap createLiquidGlassCircle(Context context, int sizePx) {
-        if (sizePx <= 0) sizePx = 280;
-        float density = context.getResources().getDisplayMetrics().density;
-        Bitmap bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-
-        float center = sizePx / 2.0f;
-        float radius = center - 2.0f;
-
-        // Base frosted glass
-        Paint basePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        basePaint.setShader(new RadialGradient(
-                center, center, radius,
-                new int[]{0x2CFFFFFF, 0x14050509, 0x24120408},
-                new float[]{0.0f, 0.65f, 1.0f},
-                Shader.TileMode.CLAMP
-        ));
-        canvas.drawCircle(center, center, radius, basePaint);
-
-        // Wallpaper caustic reflection
-        int wpAccent = isAdaptiveEnabled(context) ? getWallpaperAccentColor(context) : DEFAULT_CRIMSON;
-        int causticColor = Color.argb(0x50, Color.red(wpAccent), Color.green(wpAccent), Color.blue(wpAccent));
-
-        Paint causticPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        causticPaint.setShader(new LinearGradient(
-                0, 0, sizePx, sizePx,
-                new int[]{0x00000000, 0x1EDC143C, causticColor},
-                new float[]{0.0f, 0.55f, 1.0f},
-                Shader.TileMode.CLAMP
-        ));
-        canvas.drawCircle(center, center, radius, causticPaint);
-
-        // Top specular glaze
-        Paint glazePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        glazePaint.setShader(new LinearGradient(
-                0, 0, sizePx * 0.6f, sizePx * 0.4f,
-                new int[]{0x4DFFFFFF, 0x14FFFFFF, 0x00FFFFFF},
-                new float[]{0.0f, 0.40f, 1.0f},
-                Shader.TileMode.CLAMP
-        ));
-        canvas.drawCircle(center, center, radius, glazePaint);
-
-        // Specular stroke
-        Paint strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        strokePaint.setStyle(Paint.Style.STROKE);
-        strokePaint.setStrokeWidth(1.5f * density);
-        strokePaint.setShader(new LinearGradient(
-                0, 0, sizePx, sizePx,
-                new int[]{0x85FFFFFF, 0x2AFFFFFF, causticColor},
-                new float[]{0.0f, 0.55f, 1.0f},
-                Shader.TileMode.CLAMP
-        ));
-        canvas.drawCircle(center, center, radius, strokePaint);
-
-        return bitmap;
+        if (sizePx <= 0) sizePx = 180;
+        return createLiquidGlassBitmap(context, sizePx, sizePx, 18f);
     }
 
     /**
