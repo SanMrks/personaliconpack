@@ -66,11 +66,13 @@ public class RavenGlassThemeManager {
     }
 
     /**
-     * Procedurally renders a completely transparent Frosted Liquid Glass surface Bitmap for RemoteViews widgets.
+     * Procedurally renders an authentic Frosted Liquid Glass surface Bitmap for RemoteViews widgets.
      * Incorporates:
-     * 1. Completely transparent body (#00000000 fill) so wallpaper is 100% visible
-     * 2. Modern rectangular curve squircle geometry (18dp corner radius)
-     * 3. Polished specular glass bevel rim (1.3dp) with subtle wallpaper caustic refraction
+     * 1. Luminous ultra-clear liquid glass body (crystal-clear optical transmission, wallpaper 100% visible)
+     * 2. Curved liquid meniscus highlight (fluid light glaze across the top surface)
+     * 3. Wallpaper-adaptive caustic refraction glow along lower curves
+     * 4. Inner specular lip highlight for tangible 3D glass slab thickness
+     * 5. Polished outer specular bevel rim (1.35dp) with dual-angle light reflection
      */
     public static Bitmap createLiquidGlassBitmap(Context context, int widthPx, int heightPx, float cornerRadiusDp) {
         if (widthPx <= 0) widthPx = 360;
@@ -83,29 +85,88 @@ public class RavenGlassThemeManager {
         Bitmap bitmap = Bitmap.createBitmap(widthPx, heightPx, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
 
-        float strokeWidth = 1.3f * density;
-        float inset = strokeWidth / 2.0f;
-        RectF rect = new RectF(inset, inset, widthPx - inset, heightPx - inset);
+        float strokeWidth = 1.35f * density;
+        float halfStroke = strokeWidth / 2.0f;
+        RectF rect = new RectF(halfStroke, halfStroke, widthPx - halfStroke, heightPx - halfStroke);
         Path clipPath = new Path();
         clipPath.addRoundRect(rect, radiusPx, radiusPx, Path.Direction.CW);
 
-        // Zero fill color - completely transparent glass body
+        // 1. Crystal-Clear Luminous Liquid Glass Sheen (Pure optical transmission, wallpaper fully visible)
+        Paint glassSheenPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        glassSheenPaint.setShader(new LinearGradient(
+                0, 0, widthPx * 0.7f, heightPx,
+                new int[]{
+                        0x28FFFFFF, // Top-left luminous liquid sheen
+                        0x08FFFFFF, // Crystal-clear center transmission
+                        0x12FFFFFF  // Subtle bottom depth
+                },
+                new float[]{0.0f, 0.45f, 1.0f},
+                Shader.TileMode.CLAMP
+        ));
+        canvas.drawPath(clipPath, glassSheenPaint);
 
-        // Polished Specular Glass Bevel Rim (1.3dp Stroke)
+        // 2. Wallpaper-Adaptive Caustic Refraction Glow (Reflects live wallpaper color seamlessly)
         int wpAccent = isAdaptiveEnabled(context) ? getWallpaperAccentColor(context) : DEFAULT_CRIMSON;
-        int causticRim = Color.argb(0x60, Color.red(wpAccent), Color.green(wpAccent), Color.blue(wpAccent));
+        int causticAccent = Color.argb(0x38, Color.red(wpAccent), Color.green(wpAccent), Color.blue(wpAccent));
+        int causticCrimson = Color.argb(0x28, 0xDC, 0x14, 0x3C);
 
+        Paint causticPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        causticPaint.setShader(new LinearGradient(
+                widthPx * 0.2f, heightPx * 0.2f, widthPx, heightPx,
+                new int[]{
+                        0x00000000,
+                        0x00000000,
+                        causticAccent,
+                        causticCrimson
+                },
+                new float[]{0.0f, 0.45f, 0.82f, 1.0f},
+                Shader.TileMode.CLAMP
+        ));
+        canvas.drawPath(clipPath, causticPaint);
+
+        // 3. Curved Liquid Meniscus Glaze (Top-surface fluid reflection highlight)
+        Paint meniscusPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        meniscusPaint.setShader(new LinearGradient(
+                0, 0, widthPx * 0.65f, heightPx * 0.45f,
+                new int[]{
+                        0x4DFFFFFF, // Brilliant glossy liquid surface highlight
+                        0x16FFFFFF, // Mid fluid glaze
+                        0x00FFFFFF  // Smooth fade
+                },
+                new float[]{0.0f, 0.32f, 1.0f},
+                Shader.TileMode.CLAMP
+        ));
+        canvas.drawPath(clipPath, meniscusPaint);
+
+        // 4. Inner Specular Lip Highlight (Gives physical 3D depth to the liquid glass slab)
+        float innerInset = 1.6f * density;
+        RectF innerRect = new RectF(innerInset, innerInset, widthPx - innerInset, heightPx - innerInset);
+        Path innerPath = new Path();
+        innerPath.addRoundRect(innerRect, Math.max(0, radiusPx - innerInset), Math.max(0, radiusPx - innerInset), Path.Direction.CW);
+
+        Paint innerLipPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        innerLipPaint.setStyle(Paint.Style.STROKE);
+        innerLipPaint.setStrokeWidth(0.9f * density);
+        innerLipPaint.setShader(new LinearGradient(
+                0, 0, widthPx * 0.5f, heightPx * 0.5f,
+                new int[]{0x40FFFFFF, 0x0AFFFFFF, 0x00FFFFFF},
+                new float[]{0.0f, 0.40f, 1.0f},
+                Shader.TileMode.CLAMP
+        ));
+        canvas.drawPath(innerPath, innerLipPaint);
+
+        // 5. Polished Specular Outer Bevel Rim (1.35dp)
         Paint strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         strokePaint.setStyle(Paint.Style.STROKE);
         strokePaint.setStrokeWidth(strokeWidth);
         strokePaint.setShader(new LinearGradient(
                 0, 0, widthPx, heightPx,
                 new int[]{
-                        0x88FFFFFF, // Crisp polished white specular highlight at top-left
-                        0x40FFFFFF, // Subtle side transmission
-                        causticRim  // Delicate wallpaper caustic reflection on lower-right rim
+                        0x99FFFFFF, // Crisp polished white specular highlight at top-left
+                        0x38FFFFFF, // Subtle side transmission
+                        causticAccent // Caustic bounce along bottom-right edge
                 },
-                new float[]{0.0f, 0.50f, 1.0f},
+                new float[]{0.0f, 0.48f, 1.0f},
                 Shader.TileMode.CLAMP
         ));
         canvas.drawPath(clipPath, strokePaint);
