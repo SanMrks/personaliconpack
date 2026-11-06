@@ -735,7 +735,7 @@ public class MainActivity extends Activity {
         final LinearLayout dynamicPreviewCard = new LinearLayout(this);
         dynamicPreviewCard.setOrientation(LinearLayout.VERTICAL);
         dynamicPreviewCard.setPadding((int)(18 * density), (int)(16 * density), (int)(18 * density), (int)(16 * density));
-        dynamicPreviewCard.setBackground(createModernCard(28));
+        dynamicPreviewCard.setBackground(createModernCard(18));
         dynamicPreviewCard.setElevation(8);
         root.addView(dynamicPreviewCard);
 
@@ -743,7 +743,7 @@ public class MainActivity extends Activity {
         LinearLayout formCard = new LinearLayout(this);
         formCard.setOrientation(LinearLayout.VERTICAL);
         formCard.setPadding((int)(18 * density), (int)(18 * density), (int)(18 * density), (int)(18 * density));
-        formCard.setBackground(createModernCard(32));
+        formCard.setBackground(createModernCard(18));
         formCard.setElevation(6);
         LinearLayout.LayoutParams formLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -1105,7 +1105,13 @@ public class MainActivity extends Activity {
 
             @Override public void run() {
                 mainUpdatePreviewRunnable = this;
-                dynamicPreviewCard.setBackground(createAdaptiveCard(MainActivity.this, 28 * density));
+                if (formShuffle.getVisibility() == View.VISIBLE) {
+                    dynamicPreviewCard.setBackgroundColor(Color.TRANSPARENT);
+                    dynamicPreviewCard.setGravity(Gravity.CENTER);
+                } else {
+                    dynamicPreviewCard.setBackground(createAdaptiveCard(MainActivity.this, 18 * density));
+                    dynamicPreviewCard.setGravity(Gravity.NO_GRAVITY);
+                }
                 dynamicPreviewCard.removeAllViews();
                 Date now = new Date();
                 SimpleDateFormat timeFmt = new SimpleDateFormat("HH:mm", Locale.getDefault());
@@ -1324,22 +1330,16 @@ public class MainActivity extends Activity {
                     dynamicPreviewCard.addView(wBox);
 
                 } else if (formShuffle.getVisibility() == View.VISIBLE) {
-                    // Pop Wallpaper (Pure Text) Preview - Centered circular container
-                    FrameLayout cWrap = new FrameLayout(MainActivity.this);
-                    int cSz = (int)(105 * density);
-                    LinearLayout.LayoutParams cwLp = new LinearLayout.LayoutParams(cSz, cSz);
-                    cwLp.gravity = Gravity.CENTER;
-                    cWrap.setLayoutParams(cwLp);
-
-                    ImageView cBg = new ImageView(MainActivity.this);
-                    cBg.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                    GradientDrawable cCircle = new GradientDrawable(); cCircle.setShape(GradientDrawable.OVAL); cCircle.setColor(Color.parseColor("#16161A")); cCircle.setStroke(2, Color.parseColor("#2A2A30")); cBg.setBackground(cCircle);
-                    cWrap.addView(cBg);
-
-                    LinearLayout sBox = new LinearLayout(MainActivity.this);
-                    sBox.setOrientation(LinearLayout.VERTICAL);
-                    sBox.setGravity(Gravity.CENTER);
-                    sBox.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                    // Pop Wallpaper (1x1) Preview - Centered rectangular squircle container (18dp)
+                    LinearLayout popBox = new LinearLayout(MainActivity.this);
+                    popBox.setOrientation(LinearLayout.VERTICAL);
+                    popBox.setGravity(Gravity.CENTER);
+                    int popSz = (int)(110 * density);
+                    LinearLayout.LayoutParams popLp = new LinearLayout.LayoutParams(popSz, popSz);
+                    popLp.gravity = Gravity.CENTER;
+                    popBox.setLayoutParams(popLp);
+                    popBox.setPadding((int)(8 * density), (int)(8 * density), (int)(8 * density), (int)(8 * density));
+                    popBox.setBackground(createModernCard(0x22FFFFFF, 0x60FFFFFF, 18, MainActivity.this));
 
                     TextView sTitle = new TextView(MainActivity.this);
                     sTitle.setText(etShuffleTitle.getText().toString().isEmpty() ? "POP" : etShuffleTitle.getText().toString());
@@ -1348,7 +1348,8 @@ public class MainActivity extends Activity {
                     sTitle.setTypeface(Typeface.DEFAULT_BOLD);
                     sTitle.setLetterSpacing(0.14f);
                     sTitle.setSingleLine(true);
-                    sBox.addView(sTitle);
+                    sTitle.setGravity(Gravity.CENTER);
+                    popBox.addView(sTitle);
 
                     TextView sSub = new TextView(MainActivity.this);
                     sSub.setText(etShuffleSub.getText().toString().isEmpty() ? "WALLPAPER" : etShuffleSub.getText().toString());
@@ -1357,11 +1358,11 @@ public class MainActivity extends Activity {
                     sSub.setTypeface(Typeface.DEFAULT_BOLD);
                     sSub.setLetterSpacing(0.12f);
                     sSub.setSingleLine(true);
+                    sSub.setGravity(Gravity.CENTER);
                     sSub.setPadding(0, 2, 0, 0);
-                    sBox.addView(sSub);
+                    popBox.addView(sSub);
 
-                    cWrap.addView(sBox);
-                    dynamicPreviewCard.addView(cWrap);
+                    dynamicPreviewCard.addView(popBox);
 
                 } else if (formDock.getVisibility() == View.VISIBLE) {
                     // Dock Preview
@@ -2505,13 +2506,13 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(cardWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.setMargins(0, 0, (int)(14 * density), 0);
         card.setLayoutParams(lp);
-        card.setBackground(createModernCard(32));
+        card.setBackground(createModernCard(18));
         card.setPadding((int)(16 * density), (int)(16 * density), (int)(16 * density), (int)(16 * density));
 
         LinearLayout preview = new LinearLayout(this);
         preview.setOrientation(LinearLayout.VERTICAL);
         preview.setPadding((int)(14 * density), (int)(14 * density), (int)(14 * density), (int)(14 * density));
-        preview.setBackground(createModernPill("#12FFFFFF", "#38FFFFFF", 20 * density));
+        preview.setBackground(createModernPill("#12FFFFFF", "#38FFFFFF", 18 * density));
         preview.setGravity(Gravity.CENTER);
 
         Date now = new Date();
@@ -2605,18 +2606,28 @@ public class MainActivity extends Activity {
             preview.addView(mRow);
 
         } else if (type == 5) {
-            // Pop Wallpaper (1x1) - Pure Text ONLY
+            // Pop Wallpaper (1x1) - Centered 1x1 Squircle Box Preview
+            preview.setBackgroundColor(Color.TRANSPARENT);
+            preview.setGravity(Gravity.CENTER);
+
             LinearLayout sBox = new LinearLayout(this);
             sBox.setOrientation(LinearLayout.VERTICAL);
             sBox.setGravity(Gravity.CENTER);
-            sBox.setPadding(0, (int)(12 * density), 0, (int)(12 * density));
+            int popSz = (int)(95 * density);
+            LinearLayout.LayoutParams pLp = new LinearLayout.LayoutParams(popSz, popSz);
+            pLp.gravity = Gravity.CENTER;
+            sBox.setLayoutParams(pLp);
+            sBox.setPadding((int)(8 * density), (int)(8 * density), (int)(8 * density), (int)(8 * density));
+            sBox.setBackground(createModernCard(0x22FFFFFF, 0x60FFFFFF, 18, this));
 
             TextView sTxt = new TextView(this);
             sTxt.setText(WidgetSettingsManager.getShuffleTitle(this));
             sTxt.setTextColor(Color.WHITE);
             sTxt.setTextSize(18);
             sTxt.setTypeface(Typeface.DEFAULT_BOLD);
-            sTxt.setLetterSpacing(0.16f);
+            sTxt.setLetterSpacing(0.14f);
+            sTxt.setGravity(Gravity.CENTER);
+            sTxt.setSingleLine(true);
             sBox.addView(sTxt);
 
             TextView sSub = new TextView(this);
@@ -2624,8 +2635,10 @@ public class MainActivity extends Activity {
             sSub.setTextColor(Color.parseColor("#FFFF2E4D"));
             sSub.setTextSize(9);
             sSub.setTypeface(Typeface.DEFAULT_BOLD);
-            sSub.setLetterSpacing(0.14f);
-            sSub.setPadding(0, 3, 0, 0);
+            sSub.setLetterSpacing(0.12f);
+            sSub.setGravity(Gravity.CENTER);
+            sSub.setSingleLine(true);
+            sSub.setPadding(0, 2, 0, 0);
             sBox.addView(sSub);
 
             preview.addView(sBox);

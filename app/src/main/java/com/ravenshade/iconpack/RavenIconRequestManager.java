@@ -44,6 +44,8 @@ import java.util.concurrent.Executors;
  */
 public class RavenIconRequestManager {
 
+    public static final String DEVELOPER_EMAIL = "sanilms007@gmail.com";
+
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
     private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
 
@@ -203,6 +205,7 @@ public class RavenIconRequestManager {
         sb.append("=========================================\n");
         sb.append("   RAVEN SHADE - MISSING ICONS REQUEST   \n");
         sb.append("=========================================\n");
+        sb.append("Developer Contact: ").append(DEVELOPER_EMAIL).append("\n");
         sb.append("Device: ").append(Build.MANUFACTURER).append(" ").append(Build.MODEL).append("\n");
         sb.append("Android: ").append(Build.VERSION.RELEASE).append(" (API ").append(Build.VERSION.SDK_INT).append(")\n");
         sb.append("Requested Apps: ").append(selectedApps.size()).append("\n");
@@ -245,15 +248,26 @@ public class RavenIconRequestManager {
         String report = buildRequestReport(context, selectedApps);
         String subject = "[Raven Shade] Missing Icon Request (" + selectedApps.size() + " apps)";
 
-        Intent sendIntent = new Intent(Intent.ACTION_SEND);
-        sendIntent.setType("text/plain");
-        sendIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, report);
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+        emailIntent.setData(Uri.parse("mailto:" + DEVELOPER_EMAIL));
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{ DEVELOPER_EMAIL });
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        emailIntent.putExtra(Intent.EXTRA_TEXT, report);
 
         try {
-            context.startActivity(Intent.createChooser(sendIntent, "Send Icon Request via"));
+            context.startActivity(Intent.createChooser(emailIntent, "Send Icon Request to " + DEVELOPER_EMAIL));
         } catch (Exception e) {
-            copyToClipboard(context, report, selectedApps.size());
+            // Fallback to ACTION_SEND
+            Intent sendIntent = new Intent(Intent.ACTION_SEND);
+            sendIntent.setType("message/rfc822");
+            sendIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{ DEVELOPER_EMAIL });
+            sendIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, report);
+            try {
+                context.startActivity(Intent.createChooser(sendIntent, "Send Icon Request"));
+            } catch (Exception e2) {
+                copyToClipboard(context, report, selectedApps.size());
+            }
         }
     }
 
@@ -373,6 +387,15 @@ public class RavenIconRequestManager {
                 tvSubHeader.setTextColor(Color.parseColor("#B8B8B8"));
                 tvSubHeader.setTextSize(11);
                 titleCol.addView(tvSubHeader);
+
+                TextView tvDevEmail = new TextView(activity);
+                tvDevEmail.setText("Direct Contact: " + DEVELOPER_EMAIL);
+                tvDevEmail.setTextColor(Color.parseColor("#FFFF2E4D"));
+                tvDevEmail.setTextSize(10);
+                tvDevEmail.setTypeface(Typeface.DEFAULT_BOLD);
+                tvDevEmail.setLetterSpacing(0.06f);
+                tvDevEmail.setPadding(0, 1, 0, 0);
+                titleCol.addView(tvDevEmail);
 
                 topBar.addView(titleCol);
                 mainLayout.addView(topBar);
